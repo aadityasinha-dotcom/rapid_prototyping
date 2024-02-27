@@ -1,7 +1,5 @@
 # LinkedIn Clone
 
-![LinkedIn Clone Demo](linkedin-gif.gif)
-
 **_Built using React JS, Redux, Firebase & Styled-Components_** within a week. My first project after learning React JS referencing a tutorial on YouTube by _'Clever Programmer'_. Added some features apart from the tutorial on my own like:
 
 -   Post like functionality
@@ -66,13 +64,3 @@
         ```bash
         firebase deploy
         ```
-
-**That's it our clone is up and running share it now**
-
-## Future Plans
-
--   Might add more login methods
--   Post deleting functionality
--   Add comments on post
-
-**_NOTE: PLEASE LET ME KNOW IF YOU DISCOVERED ANY BUG OR YOU HAVE ANY SUGGESTIONS_**
