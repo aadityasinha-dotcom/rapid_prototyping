@@ -7,20 +7,6 @@
     ```bash
     npm i
     ```
-1. Setup Firebase
-
-    - Create Firebase account
-    - Create a new project
-    - Create a web app for that
-    - Copy your config from there
-
-        - Select config option
-        - Paste those config inside firebase/config.js file
-
-    - Setup authentication using Google
-
-1. Tweak code as you like
-1. Let's build the optimized version
 
     ```bash
     npm run build
