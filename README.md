@@ -11,7 +11,7 @@
     ```bash
     npm run build
     ```
-1. Star the project
+1. Start the project
      ```bash
      npm run start
      ```
