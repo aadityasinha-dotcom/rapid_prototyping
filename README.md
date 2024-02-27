@@ -12,6 +12,6 @@
     npm run build
     ```
 
-        ```bash
-        npm run start
-        ```
+     ```bash
+     npm run start
+     ```
