@@ -32,6 +32,7 @@ const Join = styled.a`
 	border-radius: 5px;
 	color: rgba(0, 0, 0, 0.6);
 	margin-right: 8px;
+	cursor: pointer;
 
 	&:hover {
 		background-color: rgba(0, 0, 0, 0.08);
@@ -44,6 +45,7 @@ const SignIn = styled.a`
 	border-radius: 25px;
 	color: #0a66c2;
 	font-size: 16px;
+	cursor: pointer;
 	font-weight: 600;
 	transition-duration: 167ms;
 	line-height: 40px;
@@ -118,6 +120,7 @@ const Google = styled.button`
 	justify-content: center;
 	align-items: center;
 	background-color: #fff;
+	cursor: pointer;
 	height: 56px;
 	width: 100%;
 	border-radius: 30px;

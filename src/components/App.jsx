@@ -5,6 +5,7 @@ import Home from "./Home";
 import { useEffect } from "react";
 import { getUserAuth } from "../action";
 import { connect } from "react-redux";
+import SignUp from "./SignUp";
 
 function App(props) {
 	useEffect(() => {
@@ -17,6 +18,9 @@ function App(props) {
 				<Switch>
 					<Route exact path="/">
 						<Login />
+					</Route>
+					<Route exact path="/SignUp">
+						<SignUp />
 					</Route>
 					<Route path="/feed">
 						<Header />
