@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { connect } from "react-redux";
 import { Redirect } from "react-router";
 import styled from "styled-components";
@@ -142,6 +142,14 @@ const Google = styled.button`
 `;
 
 function Login(props) {
+	const [isLoggedIn, setIsLoggedIn] = useState(false); // State for login status
+
+	const handleSignInClick = () => {
+		// Implement your sign-in logic here (e.g., authentication check)
+		// If successful:
+		setIsLoggedIn(true);
+	};
+
 	return (
 		<Container>
 			{props.user && <Redirect to="/feed" />}

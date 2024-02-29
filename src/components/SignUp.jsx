@@ -23,6 +23,7 @@ export default function SignUp() {
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
   const [email, setEmail] = useState('');
+  const [phone, setPhone] = useState('');
   const [password, setPassword] = useState('');
   const [errorMessage, setErrorMessage] = useState(null);
 
@@ -49,6 +50,15 @@ export default function SignUp() {
       isValid = false;
       validationMessage += 'Last name must only contain alphabets. ';
     }
+    
+    // Validate phone number
+    if (!phone.trim()) {
+      isValid = false;
+      validationMessage += 'Phone number is required. ';
+    } else if (!/^\(?([0-9]{3})\)?[-. ]?([0-9]{3})[-. ]?([0-9]{4})$/.test(phone)) {
+      isValid = false;
+      validationMessage += 'Invalid phone number format. ';
+    }    
 
     // Validate email
     const emailRegex = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
@@ -121,6 +131,18 @@ export default function SignUp() {
                   autoComplete="family-name"
                   value={lastName}
                   onChange={(event) => setLastName(event.target.value)}
+                />
+              </Grid>
+              <Grid item xs={12}>
+                <TextField
+                  required
+                  fullWidth
+                  id="phone"
+                  label="Phone Number"
+                  name="phone"
+                  autoComplete="phone"
+                  value={phone}
+                  onChange={(event) => setPhone(event.target.value)}
                 />
               </Grid>
               <Grid item xs={12}>
