@@ -1,22 +1,25 @@
-const http = require('http');
+const express = require('express');
+const bodyParser = require('body-parser');
+const { connect } = require('./db'); // Import the connect function from db.js
+const authRoutes = require('./routes/auth');
 
-const server = http.createServer((req, res) => {
-  res.writeHead(200, { 'Content-Type': 'text/plain' });
-  res.write('Hello World!');
-  res.end();
-});
+const app = express();
+const PORT = process.env.PORT || 3000;
 
-server.listen(3000, () => {
-  console.log('Server listening on port 3000');
-});
-const http = require('http');
+// Middleware
+app.use(bodyParser.json());
 
-const server = http.createServer((req, res) => {
-  res.writeHead(200, { 'Content-Type': 'text/plain' });
-  res.write('Hello World!');
-  res.end();
-});
+// Routes
+app.use('/auth', authRoutes);
 
-server.listen(3000, () => {
-  console.log('Server listening on port 3000');
-});
+// Connect to the database before starting the server
+connect()
+  .then(() => {
+    // Start server
+    app.listen(PORT, () => {
+      console.log(`Server is running on port ${PORT}`);
+    });
+  })
+  .catch(error => {
+    console.error('Error connecting to database:', error);
+  });
