@@ -5,8 +5,6 @@ const { sendOTP } = require('../utils/otp');
 
 router.post('/sendotp', async (req, res) => {
   const { phone } = req.body;
-
-  // Generate a 6-digit OTP
   const otp = Math.floor(100000 + Math.random() * 900000).toString();
 
   try {
