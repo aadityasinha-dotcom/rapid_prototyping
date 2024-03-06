@@ -13,6 +13,9 @@ import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import Typography from '@mui/material/Typography';
 import Container from '@mui/material/Container';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
+import firebase from "firebase/app";
+import { getAuth, RecaptchaVerifier } from "firebase/auth";
+import { ConfirmationNumber } from '@mui/icons-material';
 
 // TODO remove, this demo shouldn't need to reset the theme.
 
@@ -26,6 +29,17 @@ export default function SignUp() {
   const [phone, setPhone] = useState('');
   const [password, setPassword] = useState('');
   const [errorMessage, setErrorMessage] = useState(null);
+
+  const configureCaptcha = () => {
+    window.RecaptchaVerifier = new firebase.auth.RecaptchaVerifier('sign-in-button', {
+      'size': 'invisible', 
+      'callback': (response) => {
+        this.onSignInSubmit();
+        console.log("Recaptch verified")
+      },
+      defaultCountry: "IN"
+    })
+  }
 
   const handleSubmit = (event) => {
     event.preventDefault();
@@ -85,6 +99,18 @@ export default function SignUp() {
       });
       setErrorMessage(null); // Clear any previous error message
     }
+
+    const phoneNumber = "+91" + phone;
+    const appVerifier = window.RecaptchaVerifier;
+    console.log(phoneNumber)
+    this.configureCaptcha();
+    firebase.auth().signInWithPhoneNumber(phoneNumber, appVerifier)
+      .then((confirmationResult) => {
+        window.confirmationResult = confirmationResutlt;
+        console.log('OTP has been sent')
+    }).catch((error) => {
+      console.log("Not sent")
+    })
   };
 
   return (
@@ -108,6 +134,10 @@ export default function SignUp() {
           </Typography>
           <Box component="form" noValidate onSubmit={handleSubmit} sx={{ mt: 3 }}>
             <Grid container spacing={2}>
+              <Grid item xs={12} sm={6}
+                id ="sign-in-button"
+                >
+              </Grid>
               <Grid item xs={12} sm={6}>
                 <TextField
                   autoComplete="given-name"
@@ -177,6 +207,7 @@ export default function SignUp() {
                 />
               </Grid>
             </Grid>
+            <div id="recaptcha-container"></div>
             <Button
               type="submit"
               fullWidth
