@@ -14,6 +14,7 @@ import Typography from '@mui/material/Typography';
 import Container from '@mui/material/Container';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import firebase from "firebase/app";
+import { Redirect } from "react-router";
 import { getAuth, RecaptchaVerifier } from "firebase/auth";
 import { ConfirmationNumber } from '@mui/icons-material';
 
@@ -27,11 +28,16 @@ export default function SignUp() {
   const [lastName, setLastName] = useState('');
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
+  const [otp, setOtp] = useState('');
+  const [otpSent, setOtpSent] = useState(false);
+  const [otpVerified, setOtpVerified] = useState(false);
+  const [emailSent, setEmailSent] = useState(false);
+  const [fullyVerified, setFullyVerified] = useState(false);
   const [password, setPassword] = useState('');
   const [errorMessage, setErrorMessage] = useState(null);
 
   const configureCaptcha = () => {
-    window.RecaptchaVerifier = new firebase.auth.RecaptchaVerifier('sign-in-button', {
+    window.recaptchaVerifier = new firebase.auth.RecaptchaVerifier('sign-in-button', {
       'size': 'invisible', 
       'callback': (response) => {
         this.onSignInSubmit();
@@ -39,6 +45,62 @@ export default function SignUp() {
       },
       defaultCountry: "IN"
     })
+  }
+
+  const VerifyOtp = (event) => {
+    event.preventDefault();
+    setOtpVerified(true);
+    console.log(otp)
+    const code = otp;
+    window.confirmationResult.confirm(code).then((result) => {
+      const user = result.user;
+      console.log(JSON.stringify(user))
+      alert("User Verified")
+    }).catch((error) => {
+      console.log("Wrong Otp")
+    });
+  }
+  
+  const SendOtp = (event) => {
+    event.preventDefault();
+    setOtpSent(true);
+    const phoneNumber = "+91" + phone;
+    configureCaptcha();
+    const appVerifier = window.recaptchaVerifier;
+    console.log(phoneNumber)
+    firebase.auth().signInWithPhoneNumber(phoneNumber, appVerifier)
+      .then((confirmationResult) => {
+        window.confirmationResult = confirmationResult;
+        console.log('OTP has been sent')
+    }).catch((error) => {
+      console.log("Not sent")
+    })
+  }
+
+  async function EmailSent(event){
+    setEmailSent(true);
+    const res = await firebase.auth().createUserWithEmailAndPassword(email, password)
+    await res.user.sendEmailVerification()
+    .then(() => {
+      setEmailSent(true);
+      console.log("Email sent")
+    }).catch((error) => {
+      console.log(error)
+    })
+    const user = firebase.auth().currentUser;
+    if(user !== null){
+      setFullyVerified(true);
+    }
+  }
+
+  const EmailDelete = (event) => {
+    const user = firebase.auth().currentUser;
+    console.log(email)
+    user.delete().then(() => {
+      console.log("Deleted")
+    }).catch((error) => {
+      console.log(error)
+    });
   }
 
   const handleSubmit = (event) => {
@@ -99,18 +161,11 @@ export default function SignUp() {
       });
       setErrorMessage(null); // Clear any previous error message
     }
-
-    const phoneNumber = "+91" + phone;
-    const appVerifier = window.RecaptchaVerifier;
-    console.log(phoneNumber)
-    this.configureCaptcha();
-    firebase.auth().signInWithPhoneNumber(phoneNumber, appVerifier)
-      .then((confirmationResult) => {
-        window.confirmationResult = confirmationResutlt;
-        console.log('OTP has been sent')
-    }).catch((error) => {
-      console.log("Not sent")
-    })
+    if (!fullyVerified){
+      setErrorMessage("Not verified");
+    } else {
+      setErrorMessage("Thank you for Signing up")
+    }
   };
 
   return (
@@ -133,11 +188,8 @@ export default function SignUp() {
             Sign up
           </Typography>
           <Box component="form" noValidate onSubmit={handleSubmit} sx={{ mt: 3 }}>
+            <div id="sign-in-button"></div>
             <Grid container spacing={2}>
-              <Grid item xs={12} sm={6}
-                id ="sign-in-button"
-                >
-              </Grid>
               <Grid item xs={12} sm={6}>
                 <TextField
                   autoComplete="given-name"
@@ -163,7 +215,7 @@ export default function SignUp() {
                   onChange={(event) => setLastName(event.target.value)}
                 />
               </Grid>
-              <Grid item xs={12}>
+              <Grid item xs={12} sm={6}>
                 <TextField
                   required
                   fullWidth
@@ -175,31 +227,97 @@ export default function SignUp() {
                   onChange={(event) => setPhone(event.target.value)}
                 />
               </Grid>
-              <Grid item xs={12}>
-                <TextField
-                  required
-                  fullWidth
-                  id="email"
-                  label="Email Address"
-                  name="email"
-                  autoComplete="email"
-                  value={email}
-                  onChange={(event) => setEmail(event.target.value)}
-                />
-              </Grid>
-              <Grid item xs={12}>
-                <TextField
-                  required
-                  fullWidth
-                  name="password"
-                  label="Password"
-                  type="password"
-                  id="password"
-                  autoComplete="new-password"
-                  value={password}
-                  onChange={(event) => setPassword(event.target.value)}
-                />
-              </Grid>
+              {!otpSent && (
+                <Grid item xs={12} sm={6}>
+                  <Button
+                  type="otp-send"
+                  variant="contained"
+                  sx={{ mt: 2, mb: 2 }}
+                  onClick={SendOtp}
+                  >
+                    Send Otp
+                  </Button>
+                </Grid>
+              )}
+              {otpSent && !otpVerified && (
+                <Grid item xs={12} sm={6}>
+                  <TextField
+                    required
+                    fullWidth
+                    id="otp"
+                    label="OTP"
+                    name="otp"
+                    autoComplete="family-name"
+                    value={otp}
+                    onChange={(event) => setOtp(event.target.value)}
+                  />
+                </Grid>
+              )}
+              {otpSent && !otpVerified && (
+                <Grid item xs={12} sm={6}>
+                  <Button
+                  type="otp-verify"
+                  variant="contained"
+                  sx={{ mt: 2, mb: 2 }}
+                  onClick={VerifyOtp}
+                  >
+                    Verify Otp
+                  </Button>
+                </Grid>
+              )}
+              {otpVerified && (
+                <Grid item xs={12} sm={6}>
+                  <TextField
+                    required
+                    fullWidth
+                    id="email"
+                    label="Email Address"
+                    name="email"
+                    autoComplete="email"
+                    value={email}
+                    onChange={(event) => setEmail(event.target.value)}
+                  />
+                </Grid>
+              )}
+              {otpVerified && (
+                <Grid item xs={12} sm={6}>
+                  <TextField
+                    required
+                    fullWidth
+                    name="password"
+                    label="Password"
+                    type="password"
+                    id="password"
+                    autoComplete="new-password"
+                    value={password}
+                    onChange={(event) => setPassword(event.target.value)}
+                  />
+                </Grid>
+              )}
+              {otpVerified && !emailSent && (
+                <Grid item xs={12} sm={6}>
+                  <Button
+                  type="email-send"
+                  variant="contained"
+                  sx={{ mt: 2, mb: 2 }}
+                  onClick={EmailSent}
+                  >
+                    Send Link
+                  </Button>
+                </Grid>
+              )}
+              {otpVerified && !emailSent && (
+                <Grid item xs={12} sm={6}>
+                  <Button
+                  type="email-del"
+                  variant="contained"
+                  sx={{ mt: 2, mb: 2 }}
+                  onClick={EmailDelete}
+                  >
+                    Delete Email
+                  </Button>
+                </Grid>
+              )}
               <Grid item xs={12}>
                 <FormControlLabel
                   control={<Checkbox value="allowExtraEmails" color="primary" />}
