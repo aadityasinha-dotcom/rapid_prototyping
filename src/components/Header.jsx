@@ -1,7 +1,8 @@
-import React from "react";
+import React, { useState } from "react";
 import { connect } from "react-redux";
 import styled from "styled-components";
 import { signOutAPI } from "../action";
+import { Redirect } from "react-router";
 
 const Container = styled.div`
 	background-color: #fff;
@@ -143,7 +144,7 @@ const NavList = styled.li`
 	}
 `;
 
-const SignOut = styled.div`
+const Setting = styled.div`
 	position: absolute;
 	top: 45px;
 	background: white;
@@ -155,6 +156,32 @@ const SignOut = styled.div`
 	transition-duration: 167ms;
 	display: none;
 	z-index: 15;
+	cursor: pointer;
+
+	&:hover {
+		background-color: rgba(0, 0, 0, 0.08);
+		color: rgba(0, 0, 0, 1);
+	}
+`;
+
+const SignOut = styled.div`
+	position: absolute;
+	top: 75px;
+	background: white;
+	border-radius: 0 0 5px 5px;
+	width: 100px;
+	height: 40px;
+	font-size: 16px;
+	text-align: center;
+	transition-duration: 167ms;
+	display: none;
+	z-index: 15;
+	cursor: pointer;
+
+	&:hover {
+		background-color: rgba(0, 0, 0, 0.08);
+		color: rgba(0, 0, 0, 1);
+	}
 `;
 
 const SignOutMobile = styled.div`
@@ -184,6 +211,13 @@ const User = styled(NavList)`
 				justify-content: center;
 			}
 		}
+		${Setting} {
+			@media (min-width: 768px) {
+				display: flex;
+				align-items: center;
+				justify-content: center;
+			}
+		}
 	}
 `;
 
@@ -192,8 +226,15 @@ const Work = styled(User)`
 `;
 
 function Header(props) {
+	const [settings, setSettings] = useState(false);
+
+	const handleClick = () => {
+		setSettings(true);
+	};
+
 	return (
 		<Container>
+			{settings && <Redirect to="/Settings" />}
 			<Content>
 				<Logo>
 					<a href="/feed">
@@ -250,6 +291,9 @@ function Header(props) {
 									Me <img src="/images/down-icon.svg" alt="" />
 								</span>
 							</a>
+							<Setting onClick={handleClick}>
+								<a>Settings</a>
+							</Setting>
 							<SignOut onClick={() => props.signOut()}>
 								<a>Sign Out</a>
 							</SignOut>

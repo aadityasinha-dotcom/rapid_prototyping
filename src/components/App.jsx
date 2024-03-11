@@ -6,6 +6,7 @@ import { useEffect } from "react";
 import { getUserAuth } from "../action";
 import { connect } from "react-redux";
 import SignUp from "./SignUp";
+import Settings from "./Settings";
 
 function App(props) {
 	useEffect(() => {
@@ -21,6 +22,9 @@ function App(props) {
 					</Route>
 					<Route exact path="/SignUp">
 						<SignUp />
+					</Route>
+					<Route exact path="/Settings">
+						<Settings />
 					</Route>
 					<Route path="/feed">
 						<Header />

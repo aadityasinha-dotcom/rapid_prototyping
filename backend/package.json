@@ -1,14 +1,22 @@
 {
-  "name": "backend",
+  "name": "sid",
   "version": "1.0.0",
-  "description": "",
-  "main": "server.js",
+  "description": "js learning package",
+  "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node index.js"
   },
-  "author": "",
+  "author": "sid",
   "license": "ISC",
   "dependencies": {
-    "express": "^4.18.3"
+    "cookie-parser": "^1.4.6",
+    "express": "^4.18.2",
+    "mongoose": "^8.2.1",
+    "mysql": "^2.18.1",
+    "uuid": "^9.0.1"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.0"
   }
 }

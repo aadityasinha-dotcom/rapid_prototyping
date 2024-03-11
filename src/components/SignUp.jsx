@@ -51,46 +51,46 @@ export default function SignUp() {
     event.preventDefault();
     setOtpVerified(true);
     console.log(otp)
-    const code = otp;
-    window.confirmationResult.confirm(code).then((result) => {
-      const user = result.user;
-      console.log(JSON.stringify(user))
-      alert("User Verified")
-    }).catch((error) => {
-      console.log("Wrong Otp")
-    });
+    // const code = otp;
+    // window.confirmationResult.confirm(code).then((result) => {
+    //   const user = result.user;
+    //   console.log(JSON.stringify(user))
+    //   alert("User Verified")
+    // }).catch((error) => {
+    //   console.log("Wrong Otp")
+    // });
   }
   
   const SendOtp = (event) => {
     event.preventDefault();
     setOtpSent(true);
     const phoneNumber = "+91" + phone;
-    configureCaptcha();
-    const appVerifier = window.recaptchaVerifier;
-    console.log(phoneNumber)
-    firebase.auth().signInWithPhoneNumber(phoneNumber, appVerifier)
-      .then((confirmationResult) => {
-        window.confirmationResult = confirmationResult;
-        console.log('OTP has been sent')
-    }).catch((error) => {
-      console.log("Not sent")
-    })
+    // configureCaptcha();
+    // const appVerifier = window.recaptchaVerifier;
+    // console.log(phoneNumber)
+    // firebase.auth().signInWithPhoneNumber(phoneNumber, appVerifier)
+    //   .then((confirmationResult) => {
+    //     window.confirmationResult = confirmationResult;
+    //     console.log('OTP has been sent')
+    // }).catch((error) => {
+    //   console.log("Not sent")
+    // })
   }
 
   async function EmailSent(event){
     setEmailSent(true);
-    const res = await firebase.auth().createUserWithEmailAndPassword(email, password)
-    await res.user.sendEmailVerification()
-    .then(() => {
-      setEmailSent(true);
-      console.log("Email sent")
-    }).catch((error) => {
-      console.log(error)
-    })
-    const user = firebase.auth().currentUser;
-    if(user !== null){
-      setFullyVerified(true);
-    }
+    // const res = await firebase.auth().createUserWithEmailAndPassword(email, password)
+    // await res.user.sendEmailVerification()
+    // .then(() => {
+    //   setEmailSent(true);
+    //   console.log("Email sent")
+    // }).catch((error) => {
+    //   console.log(error)
+    // })
+    // const user = firebase.auth().currentUser;
+    // if(user !== null){
+    //   setFullyVerified(true);
+    // }
   }
 
   const EmailDelete = (event) => {
@@ -103,7 +103,7 @@ export default function SignUp() {
     });
   }
 
-  const handleSubmit = (event) => {
+  async function handleSubmit(event){
     event.preventDefault();
 
     let isValid = true;
@@ -165,6 +165,27 @@ export default function SignUp() {
       setErrorMessage("Not verified");
     } else {
       setErrorMessage("Thank you for Signing up")
+    }
+
+    const data = {
+      username: firstName,
+      email: email,
+      password: password,
+      phoneNumber: phone,
+    };
+
+    try {
+      const response = await fetch('http://localhost:9000/users', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+      });
+      if (!response.ok) {
+        throw new Error(`API call failed with status ${response.status}`);
+      }
+      console.log(response.status); // Handle successful response
+    } catch (error) {
+      console.error('Error saving user data:', error); // Handle errors
     }
   };
 
