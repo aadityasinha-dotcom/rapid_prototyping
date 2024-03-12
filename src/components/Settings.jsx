@@ -14,6 +14,7 @@ import Grid from '@mui/material/Grid';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import Typography from '@mui/material/Typography';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
+import { setUser } from '../action';
 
 function Copyright(props) {
   return (
@@ -33,6 +34,8 @@ function Copyright(props) {
 const defaultTheme = createTheme();
 
 function Settings(props) {
+    const [phone, setPhone] = useState('');
+    const [otp, setOtp] = useState('');
     const [otpSent, setOtpSent] = useState(false);
     const [otpVerified, setOtpVerified] = useState(false);
     const [emailSent, setEmailSent] = useState(false);
@@ -57,6 +60,22 @@ function Settings(props) {
     // }).catch((error) => {
     //   console.log("Wrong Otp")
     // });
+  }
+
+  async function EmailSent(event){
+    setEmailSent(true);
+    // const res = await firebase.auth().createUserWithEmailAndPassword(email, password)
+    // await res.user.sendEmailVerification()
+    // .then(() => {
+    //   setEmailSent(true);
+    //   console.log("Email sent")
+    // }).catch((error) => {
+    //   console.log(error)
+    // })
+    // const user = firebase.auth().currentUser;
+    // if(user !== null){
+    //   setFullyVerified(true);
+    // }
   }
   
   const SendOtp = (event) => {
@@ -91,7 +110,7 @@ function Settings(props) {
     // }
   }
 
-  console.log(props)
+  console.log(props.user);
 
   return (
     <ThemeProvider theme={defaultTheme}>
@@ -138,7 +157,7 @@ function Settings(props) {
                     autoFocus
                 />
               </Grid>
-              {!otpVerified && !emailSent && (
+              {!emailSent && (
                 <Grid item xs={12} sm={6}>
                   <Button
                   type="email-send"
@@ -155,11 +174,10 @@ function Settings(props) {
                 margin="normal"
                 required
                 fullWidth
-                name="password"
-                label="Password"
-                type="password"
-                id="password"
-                autoComplete="current-password"
+                name="Number"
+                label="Number"
+                id="Number"
+                autoComplete="phone"
               />
               </Grid>
               {!otpSent && (
@@ -186,31 +204,9 @@ function Settings(props) {
                   </Button>
                 </Grid>
               )}
-              <FormControlLabel
-                control={<Checkbox value="remember" color="primary" />}
-                label="Remember me"
-              />
-              <Button
-                type="submit"
-                fullWidth
-                variant="contained"
-                sx={{ mt: 3, mb: 2 }}
-              >
-                Sign In
-              </Button>
-              <Grid container>
-                <Grid item xs>
-                  <Link href="#" variant="body2">
-                    Forgot password?
-                  </Link>
-                </Grid>
-                <Grid item>
-                  <Link href="#" variant="body2">
-                    {"Don't have an account? Sign Up"}
-                  </Link>
-                </Grid>
-              </Grid>
-              <Copyright sx={{ mt: 5 }} />
+              {/* <Grid item xs={12} sm={6}>
+                Change Password
+              </Grid> */}
             </Grid>
             </Box>
           </Box>
@@ -222,9 +218,12 @@ function Settings(props) {
 
 const mapStateToProps = (state) => {
 	return {
-		user: state.userState.user,
-		ids: state.articleState.ids,
+		user: state.user,
 	};
 };
 
-export default connect(mapStateToProps)(Settings);
+const mapDispatchToProps = (dispatch) => ({
+	setUser: (userData) => dispatch(setUser(userData)),
+});
+
+export default connect(mapStateToProps, mapDispatchToProps)(Settings);

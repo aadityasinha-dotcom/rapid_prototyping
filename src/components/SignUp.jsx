@@ -17,12 +17,15 @@ import firebase from "firebase/app";
 import { Redirect } from "react-router";
 import { getAuth, RecaptchaVerifier } from "firebase/auth";
 import { ConfirmationNumber } from '@mui/icons-material';
+import { setUser } from '../action';
+import { connect } from "react-redux";
 
 // TODO remove, this demo shouldn't need to reset the theme.
 
 const defaultTheme = createTheme();
 
-export default function SignUp() {
+function SignUp(props) {
+  
 
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
@@ -35,6 +38,13 @@ export default function SignUp() {
   const [fullyVerified, setFullyVerified] = useState(false);
   const [password, setPassword] = useState('');
   const [errorMessage, setErrorMessage] = useState(null);
+  const [signedUp, setSignedUp] = useState(false);
+  const [formData, setFormData] = useState({
+    firstName: '',
+    email: '',
+    password: '',
+    phoneNumber: '',
+  });  
 
   const configureCaptcha = () => {
     window.recaptchaVerifier = new firebase.auth.RecaptchaVerifier('sign-in-button', {
@@ -102,6 +112,11 @@ export default function SignUp() {
       console.log(error)
     });
   }
+
+  const handleChange = (event) => {
+    setFormData({ ...formData, [event.target.name]: event.target.value });
+  };
+  
 
   async function handleSubmit(event){
     event.preventDefault();
@@ -174,23 +189,30 @@ export default function SignUp() {
       phoneNumber: phone,
     };
 
-    try {
-      const response = await fetch('http://localhost:9000/users', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data),
-      });
-      if (!response.ok) {
-        throw new Error(`API call failed with status ${response.status}`);
-      }
-      console.log(response.status); // Handle successful response
-    } catch (error) {
-      console.error('Error saving user data:', error); // Handle errors
-    }
+    props.user.email = email;
+    props.user.password = password;
+    props.user.phoneNumber = phone;
+    console.log(props);
+
+    // try {
+    //   const response = await fetch('http://localhost:9000/users', {
+    //     method: 'POST',
+    //     headers: { 'Content-Type': 'application/json' },
+    //     body: JSON.stringify(data),
+    //   });
+    //   if (!response.ok) {
+    //     throw new Error(`API call failed with status ${response.status}`);
+    //   }
+    //   console.log(response.status); // Handle successful response
+    // } catch (error) {
+    //   console.error('Error saving user data:', error); // Handle errors
+    // }
+    setSignedUp(true);
   };
 
   return (
     <ThemeProvider theme={defaultTheme}>
+      {signedUp && <Redirect to="/Settings" />}
       <Container component="main" maxWidth="xs">
         <CssBaseline />
         <Box
@@ -368,3 +390,15 @@ export default function SignUp() {
     </ThemeProvider>
   );
 }
+
+const mapStateToProps = (state) => {
+	return {
+		user: state.user || {},
+	};
+};
+
+const mapDispatchToProps = (dispatch) => ({
+	setUser: (userData) => dispatch(setUser(userData)),
+});
+
+export default connect(mapStateToProps, mapDispatchToProps)(SignUp);
