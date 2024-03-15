@@ -143,6 +143,7 @@ const Google = styled.button`
 
 function Login(props) {
 	const [isLoggedIn, setIsLoggedIn] = useState(false); // State for login status
+	const [signUp, setSignUp] = useState(false);
 
 	const handleSignInClick = () => {
 		// Implement your sign-in logic here (e.g., authentication check)
@@ -150,15 +151,21 @@ function Login(props) {
 		setIsLoggedIn(true);
 	};
 
+	const handleClick = () => {
+		setSignUp(true);
+	};
+	
+
 	return (
 		<Container>
 			{props.user && <Redirect to="/feed" />}
+			{signUp && <Redirect to="/SignUp" />}
 			<Nav>
 				<a href="/">
 					<img src="/images/login-logo.svg" alt="" />
 				</a>
 				<div>
-					<Join>Join Now</Join>
+					<Join onClick={handleClick}>Join Now</Join>
 					<SignIn>Sign In</SignIn>
 				</div>
 			</Nav>
