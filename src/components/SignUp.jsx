@@ -19,6 +19,7 @@ import { getAuth, RecaptchaVerifier } from "firebase/auth";
 import { ConfirmationNumber } from '@mui/icons-material';
 import { setUser } from '../action';
 import { connect } from "react-redux";
+import { useDispatch } from 'react-redux'; 
 
 // TODO remove, this demo shouldn't need to reset the theme.
 
@@ -26,10 +27,11 @@ const defaultTheme = createTheme();
 
 function SignUp(props) {
   
-
+  const dispatch = useDispatch(); 
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
   const [email, setEmail] = useState('');
+  const [finalEmail, setFinalEmail] = useState('');
   const [phone, setPhone] = useState('');
   const [otp, setOtp] = useState('');
   const [otpSent, setOtpSent] = useState(false);
@@ -60,7 +62,7 @@ function SignUp(props) {
   const VerifyOtp = (event) => {
     event.preventDefault();
     setOtpVerified(true);
-    console.log(otp)
+    // console.log(otp)
     // const code = otp;
     // window.confirmationResult.confirm(code).then((result) => {
     //   const user = result.user;
@@ -74,7 +76,7 @@ function SignUp(props) {
   const SendOtp = (event) => {
     event.preventDefault();
     setOtpSent(true);
-    const phoneNumber = "+91" + phone;
+    // const phoneNumber = "+91" + phone;
     // configureCaptcha();
     // const appVerifier = window.recaptchaVerifier;
     // console.log(phoneNumber)
@@ -89,6 +91,7 @@ function SignUp(props) {
 
   async function EmailSent(event){
     setEmailSent(true);
+    setFinalEmail(email);
     // const res = await firebase.auth().createUserWithEmailAndPassword(email, password)
     // await res.user.sendEmailVerification()
     // .then(() => {
@@ -189,30 +192,32 @@ function SignUp(props) {
       phoneNumber: phone,
     };
 
-    props.user.email = email;
-    props.user.password = password;
-    props.user.phoneNumber = phone;
+    // props.user.email = finalEmail;
+    // props.user.password = password;
+    // props.user.phoneNumber = phone;
+    // console.log(props);
+    dispatch(setUser(data));
     console.log(props);
 
-    // try {
-    //   const response = await fetch('http://localhost:9000/users', {
-    //     method: 'POST',
-    //     headers: { 'Content-Type': 'application/json' },
-    //     body: JSON.stringify(data),
-    //   });
-    //   if (!response.ok) {
-    //     throw new Error(`API call failed with status ${response.status}`);
-    //   }
-    //   console.log(response.status); // Handle successful response
-    // } catch (error) {
-    //   console.error('Error saving user data:', error); // Handle errors
-    // }
+    try {
+      const response = await fetch('http://localhost:9000/users', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+      });
+      if (!response.ok) {
+        throw new Error(`API call failed with status ${response.status}`);
+      }
+      console.log(response.status); // Handle successful response
+    } catch (error) {
+      console.error('Error saving user data:', error); // Handle errors
+    }
     setSignedUp(true);
   };
 
   return (
     <ThemeProvider theme={defaultTheme}>
-      {signedUp && <Redirect to="/Settings" />}
+      {signedUp && <Redirect to="/feed" />}
       <Container component="main" maxWidth="xs">
         <CssBaseline />
         <Box
@@ -393,7 +398,7 @@ function SignUp(props) {
 
 const mapStateToProps = (state) => {
 	return {
-		user: state.user || {},
+		user: state.userState.user || {},
 	};
 };
 

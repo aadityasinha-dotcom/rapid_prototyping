@@ -15,6 +15,8 @@ import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import Typography from '@mui/material/Typography';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { setUser } from '../action';
+import firebase from "firebase/app";
+
 
 function Copyright(props) {
   return (
@@ -35,10 +37,17 @@ const defaultTheme = createTheme();
 
 function Settings(props) {
     const [phone, setPhone] = useState('');
+    const [currEmail, setCurrEmail] = useState('');
+    const [newEmail, setNewEmail] = useState('');
+    const [currPhone, setCurrPhone] = useState('');
+    const [newPhone, setNewPhone] = useState('');
     const [otp, setOtp] = useState('');
     const [otpSent, setOtpSent] = useState(false);
     const [otpVerified, setOtpVerified] = useState(false);
     const [emailSent, setEmailSent] = useState(false);
+    const [changeEmail, setChangeEmail] = useState(false);
+    const [fullyVerified, setFullyVerified] = useState(false);
+    const [errorMessage, setErrorMessage] = useState(null);
     const handleSubmit = (event) => {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
@@ -48,10 +57,21 @@ function Settings(props) {
     });
   };
 
-  const VerifyOtp = (event) => {
+  const configureCaptcha = () => {
+    window.recaptchaVerifier = new firebase.auth.RecaptchaVerifier('sign-in-button', {
+      'size': 'invisible', 
+      'callback': (response) => {
+        this.onSignInSubmit();
+        console.log("Recaptch verified")
+      },
+      defaultCountry: "IN"
+    })
+  }
+
+  async function VerifyOtp(event){
     event.preventDefault();
     setOtpVerified(true);
-    console.log(otp)
+    // console.log(otp)
     // const code = otp;
     // window.confirmationResult.confirm(code).then((result) => {
     //   const user = result.user;
@@ -60,54 +80,106 @@ function Settings(props) {
     // }).catch((error) => {
     //   console.log("Wrong Otp")
     // });
+    const data = {
+      phoneNumber: Number(props.user.phoneNumber),
+      newPhoneNumber: Number(newPhone),
+    }
+    console.log(newPhone);
+    try {
+      const response = await fetch('http://localhost:9000/users/login/changePhoneNumber', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+      });
+      if (!response.ok) {
+        throw new Error(`API call failed with status ${response.status}`);
+      }
+      console.log(response.status); // Handle successful response
+    } catch (error) {
+      console.error('Error saving user data:', error); // Handle errors
+    }
+    props.user.phoneNumber = newPhone;
+    console.log("Phone number changed");
   }
 
   async function EmailSent(event){
     setEmailSent(true);
-    // const res = await firebase.auth().createUserWithEmailAndPassword(email, password)
-    // await res.user.sendEmailVerification()
-    // .then(() => {
-    //   setEmailSent(true);
-    //   console.log("Email sent")
-    // }).catch((error) => {
-    //   console.log(error)
-    // })
-    // const user = firebase.auth().currentUser;
-    // if(user !== null){
-    //   setFullyVerified(true);
-    // }
+    console.log(props.user.email);
+    let isValid = true;
+    let validationMessage = '';
+    // Validate email
+    const emailRegex = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+    if (!emailRegex.test(email)) {
+      isValid = false;
+      validationMessage += 'Invalid email address. ';
+    }
+    if (!isValid) {
+      setErrorMessage(validationMessage);
+    } else {
+      const res = await firebase.auth().createUserWithEmailAndPassword(newEmail, props.user.password)
+      await res.user.sendEmailVerification()
+      .then(() => {
+        setEmailSent(true);
+        console.log("Email sent")
+      }).catch((error) => {
+        console.log(error)
+      })
+      const user = firebase.auth().currentUser;
+      if(user !== null){
+        setFullyVerified(true);
+      }
+    }
+  }
+
+  async function ChangeEmail(event){
+    setChangeEmail(true);
+    console.log(newEmail);
+    const data = {
+      email: props.user.email,
+      newEmail: newEmail,
+    }
+    try {
+      const response = await fetch('http://localhost:9000/users/login/changeEmail', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+      });
+      if (!response.ok) {
+        throw new Error(`API call failed with status ${response.status}`);
+      }
+      console.log(response.status); // Handle successful response
+    } catch (error) {
+      console.error('Error saving user data:', error); // Handle errors
+    }
   }
   
   const SendOtp = (event) => {
     event.preventDefault();
     setOtpSent(true);
-    const phoneNumber = "+91" + phone;
-    // configureCaptcha();
-    // const appVerifier = window.recaptchaVerifier;
-    // console.log(phoneNumber)
-    // firebase.auth().signInWithPhoneNumber(phoneNumber, appVerifier)
-    //   .then((confirmationResult) => {
-    //     window.confirmationResult = confirmationResult;
-    //     console.log('OTP has been sent')
-    // }).catch((error) => {
-    //   console.log("Not sent")
-    // })
-  }
-
-  async function EmailSent(event){
-    setEmailSent(true);
-    // const res = await firebase.auth().createUserWithEmailAndPassword(email, password)
-    // await res.user.sendEmailVerification()
-    // .then(() => {
-    //   setEmailSent(true);
-    //   console.log("Email sent")
-    // }).catch((error) => {
-    //   console.log(error)
-    // })
-    // const user = firebase.auth().currentUser;
-    // if(user !== null){
-    //   setFullyVerified(true);
-    // }
+    const phoneNumber = "+91" + props.user.phoneNumber;
+    // Validate phone number
+    if (!props.user.phoneNumber.trim()) {
+      isValid = false;
+      validationMessage += 'Phone number is required. ';
+    } else if (!/^\(?([0-9]{3})\)?[-. ]?([0-9]{3})[-. ]?([0-9]{4})$/.test(props.user.phoneNumber)) {
+      isValid = false;
+      validationMessage += 'Invalid phone number format. ';
+    }  
+    if (!isValid) {
+      setErrorMessage(validationMessage);
+    } else {
+      console.log(props.user.phoneNumber);
+      configureCaptcha();
+      const appVerifier = window.recaptchaVerifier;
+      console.log(newPhone)
+      firebase.auth().signInWithPhoneNumber(newPhone, appVerifier)
+        .then((confirmationResult) => {
+          window.confirmationResult = confirmationResult;
+          console.log('OTP has been sent')
+      }).catch((error) => {
+        console.log("Not sent")
+      })
+    }
   }
 
   console.log(props.user);
@@ -130,6 +202,7 @@ function Settings(props) {
             backgroundPosition: 'center',
           }}
         /> */}
+        {errorMessage && <p style={{ color: 'red' }}>{errorMessage}</p>}
         <Grid item xs={12} sm={8} md={5} component={Paper} elevation={6} square>
           <Box
             sx={{
@@ -146,15 +219,27 @@ function Settings(props) {
             <Box component="form" noValidate onSubmit={handleSubmit} sx={{ mt: 1 }}>
             <Grid container spacing={2}>
                 <Grid item xs={12} sm={6}>
+                {/* <TextField
+                    margin="normal"
+                    required
+                    fullWidth
+                    id="currEmail"
+                    label="Current Email"
+                    name="currEmail"
+                    autoComplete="email"
+                    autoFocus
+                    onChange={(event) => setCurrEmail(event.target.value)}
+                /> */}
                 <TextField
                     margin="normal"
                     required
                     fullWidth
-                    id="email"
-                    label="Email Address"
-                    name="email"EmailSent
+                    id="newEmail"
+                    label="New Email"
+                    name="newEmail"
                     autoComplete="email"
                     autoFocus
+                    onChange={(event) => setNewEmail(event.target.value)}
                 />
               </Grid>
               {!emailSent && (
@@ -169,17 +254,42 @@ function Settings(props) {
                   </Button>
                 </Grid>
               )}
+              {emailSent && (
+                <Grid item xs={12} sm={6}>
+                  <Button
+                  type="change-email"
+                  variant="contained"
+                  sx={{ mt: 2, mb: 2 }}
+                  onClick={ChangeEmail}
+                  >
+                    Change Email
+                  </Button>
+                </Grid>
+              )}
               <Grid item xs={12} sm={6}>
-              <TextField
-                margin="normal"
-                required
-                fullWidth
-                name="Number"
-                label="Number"
-                id="Number"
-                autoComplete="phone"
-              />
+                {/* <TextField
+                  margin="normal"
+                  required
+                  fullWidth
+                  name="Current Number"
+                  label="Current Number"
+                  id="Current Number"
+                  autoComplete="phone"
+                  onChange={(event) => setCurrPhone(event.target.value)}
+                /> */}
+                <TextField
+                  margin="normal"
+                  required
+                  fullWidth
+                  name="New Number"
+                  label="New Number"
+                  id="New Number"
+                  autoComplete="phone"
+                  onChange={(event) => setNewPhone(event.target.value)}
+                />
               </Grid>
+              <div id="sign-in-button"></div>
+              <div id="recaptcha-container"></div>
               {!otpSent && (
                 <Grid item xs={12} sm={6}>
                   <Button
@@ -190,6 +300,20 @@ function Settings(props) {
                   >
                     Send Otp
                   </Button>
+                </Grid>
+              )}
+              {otpSent && !otpVerified && (
+                <Grid item xs={12} sm={6}>
+                  <TextField
+                    required
+                    fullWidth
+                    id="otp"
+                    label="OTP"
+                    name="otp"
+                    autoComplete="family-name"
+                    value={otp}
+                    onChange={(event) => setOtp(event.target.value)}
+                  />
                 </Grid>
               )}
               {otpSent && !otpVerified && (
@@ -218,7 +342,7 @@ function Settings(props) {
 
 const mapStateToProps = (state) => {
 	return {
-		user: state.user,
+		user: state.userState.user,
 	};
 };
 

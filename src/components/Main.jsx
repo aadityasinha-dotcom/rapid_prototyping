@@ -255,6 +255,8 @@ function Main(props) {
 		props.likeHandler(payload);
 	}
 
+	console.log(props.user);
+
 	return (
 		<Container>
 			<ShareBox>
