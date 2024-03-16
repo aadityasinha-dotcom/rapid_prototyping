@@ -61,49 +61,76 @@ function SignUp(props) {
 
   const VerifyOtp = (event) => {
     event.preventDefault();
-    setOtpVerified(true);
-    // console.log(otp)
-    // const code = otp;
-    // window.confirmationResult.confirm(code).then((result) => {
-    //   const user = result.user;
-    //   console.log(JSON.stringify(user))
-    //   alert("User Verified")
-    // }).catch((error) => {
-    //   console.log("Wrong Otp")
-    // });
+    if (!otp.trim()) {
+      isValid = false;
+      validationMessage += 'otp is required. ';
+    } else if (!/^\(?([0-9]{3})\)?[-. ]?([0-9]{3})[-. ]?([0-9]{4})$/.test(otp)) {
+      isValid = false;
+      validationMessage += 'Invalid otp format. ';
+    } 
+    if (isValid) {
+      setOtpVerified(true);
+      console.log(otp)
+      const code = otp;
+      window.confirmationResult.confirm(code).then((result) => {
+        const user = result.user;
+        console.log(JSON.stringify(user))
+        alert("User Verified")
+      }).catch((error) => {
+        console.log("Wrong Otp")
+      });
+    }
   }
   
   const SendOtp = (event) => {
     event.preventDefault();
-    setOtpSent(true);
-    // const phoneNumber = "+91" + phone;
-    // configureCaptcha();
-    // const appVerifier = window.recaptchaVerifier;
-    // console.log(phoneNumber)
-    // firebase.auth().signInWithPhoneNumber(phoneNumber, appVerifier)
-    //   .then((confirmationResult) => {
-    //     window.confirmationResult = confirmationResult;
-    //     console.log('OTP has been sent')
-    // }).catch((error) => {
-    //   console.log("Not sent")
-    // })
+    // Validate phone number
+    if (!phone.trim()) {
+      isValid = false;
+      validationMessage += 'Phone number is required. ';
+    } else if (!/^\(?([0-9]{3})\)?[-. ]?([0-9]{3})[-. ]?([0-9]{4})$/.test(phone)) {
+      isValid = false;
+      validationMessage += 'Invalid phone number format. ';
+    }  
+    // if (isValid) {
+    //   setOtpSent(true);
+    //   const phoneNumber = "+91" + phone;
+    //   configureCaptcha();
+    //   const appVerifier = window.recaptchaVerifier;
+    //   console.log(phoneNumber)
+    //   firebase.auth().signInWithPhoneNumber(phoneNumber, appVerifier)
+    //     .then((confirmationResult) => {
+    //       window.confirmationResult = confirmationResult;
+    //       console.log('OTP has been sent')
+    //   }).catch((error) => {
+    //     console.log("Not sent")
+    //   })
+    // }
   }
 
   async function EmailSent(event){
-    setEmailSent(true);
-    setFinalEmail(email);
-    // const res = await firebase.auth().createUserWithEmailAndPassword(email, password)
-    // await res.user.sendEmailVerification()
-    // .then(() => {
-    //   setEmailSent(true);
-    //   console.log("Email sent")
-    // }).catch((error) => {
-    //   console.log(error)
-    // })
-    // const user = firebase.auth().currentUser;
-    // if(user !== null){
-    //   setFullyVerified(true);
-    // }
+    // Validate email
+    const emailRegex = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+    if (!emailRegex.test(email)) {
+      isValid = false;
+      validationMessage += 'Invalid email address. ';
+    }
+    if (isValid) {
+      setEmailSent(true);
+      setFinalEmail(email);
+      const res = await firebase.auth().createUserWithEmailAndPassword(email, password)
+      await res.user.sendEmailVerification()
+      .then(() => {
+        setEmailSent(true);
+        console.log("Email sent")
+      }).catch((error) => {
+        console.log(error)
+      })
+      const user = firebase.auth().currentUser;
+      if(user !== null){
+        setFullyVerified(true);
+      }
+    }
   }
 
   const EmailDelete = (event) => {
@@ -183,36 +210,36 @@ function SignUp(props) {
       setErrorMessage("Not verified");
     } else {
       setErrorMessage("Thank you for Signing up")
-    }
 
-    const data = {
-      username: firstName,
-      email: email,
-      password: password,
-      phoneNumber: phone,
-    };
+      const data = {
+        username: firstName,
+        email: email,
+        password: password,
+        phoneNumber: phone,
+      };
 
-    // props.user.email = finalEmail;
-    // props.user.password = password;
-    // props.user.phoneNumber = phone;
-    // console.log(props);
-    dispatch(setUser(data));
-    console.log(props);
+      // props.user.email = finalEmail;
+      // props.user.password = password;
+      // props.user.phoneNumber = phone;
+      // console.log(props);
+      dispatch(setUser(data));
+      console.log(props);
 
-    try {
-      const response = await fetch('http://localhost:9000/users', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data),
-      });
-      if (!response.ok) {
-        throw new Error(`API call failed with status ${response.status}`);
+      try {
+        const response = await fetch('http://localhost:9000/users', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(data),
+        });
+        if (!response.ok) {
+          throw new Error(`API call failed with status ${response.status}`);
+        }
+        console.log(response.status); // Handle successful response
+      } catch (error) {
+        console.error('Error saving user data:', error); // Handle errors
       }
-      console.log(response.status); // Handle successful response
-    } catch (error) {
-      console.error('Error saving user data:', error); // Handle errors
+      setSignedUp(true);
     }
-    setSignedUp(true);
   };
 
   return (
