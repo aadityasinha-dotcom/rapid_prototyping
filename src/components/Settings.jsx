@@ -47,7 +47,7 @@ function Settings(props) {
     const [otpSent, setOtpSent] = useState(false);
     const [otpVerified, setOtpVerified] = useState(false);
     const [emailSent, setEmailSent] = useState(false);
-    const [changeEmail, setChangeEmail] = useState(false);
+    const [changedEmail, setChangedEmail] = useState(false);
     const [fullyVerified, setFullyVerified] = useState(false);
     const handleSubmit = (event) => {
       event.preventDefault();
@@ -71,36 +71,50 @@ function Settings(props) {
 
   async function VerifyOtp(event){
     event.preventDefault();
-    setOtpVerified(true);
-    // console.log(otp)
-    // const code = otp;
-    // window.confirmationResult.confirm(code).then((result) => {
-    //   const user = result.user;
-    //   console.log(JSON.stringify(user))
-    //   alert("User Verified")
-    // }).catch((error) => {
-    //   console.log("Wrong Otp")
-    // });
-    const data = {
-      phoneNumber: Number(props.user.phoneNumber),
-      newPhoneNumber: Number(newPhone),
-    }
-    console.log(newPhone);
-    try {
-      const response = await fetch('http://localhost:9000/users/login/changePhoneNumber', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data),
-      });
-      if (!response.ok) {
-        throw new Error(`API call failed with status ${response.status}`);
+    let isValid = true;
+    let validationMessage = '';
+    if (!otp.trim()) {
+      isValid = false;
+      validationMessage += 'OTP is required. ';
+    } else if (!/^\d{6}$/.test(otp)) {
+      isValid = false;
+      validationMessage += 'Invalid OTP format. ';
+    } 
+    if (isValid) {
+      setOtpVerified(true);
+      // console.log(otp)
+      // const code = otp;
+      // window.confirmationResult.confirm(code).then((result) => {
+      //   const user = result.user;
+      //   console.log(JSON.stringify(user))
+      //   alert("User Verified")
+      // }).catch((error) => {
+      //   console.log("Wrong Otp")
+      // });
+      const data = {
+        phoneNumber: Number(props.user.phoneNumber),
+        newPhoneNumber: Number(newPhone),
       }
-      console.log(response.status); // Handle successful response
-    } catch (error) {
-      console.error('Error saving user data:', error); // Handle errors
+      console.log(newPhone);
+      try {
+        const response = await fetch('http://localhost:9000/users/login/changePhoneNumber', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(data),
+        });
+        if (!response.ok) {
+          throw new Error(`API call failed with status ${response.status}`);
+        }
+        console.log(response.status); // Handle successful response
+      } catch (error) {
+        console.error('Error saving user data:', error); // Handle errors
+      }
+      props.user.phoneNumber = newPhone;
+      console.log("Phone number changed");
+      setErrorMessage("Phone number changed");
+    } else {
+      setErrorMessage(validationMessage);
     }
-    props.user.phoneNumber = newPhone;
-    console.log("Phone number changed");
   }
 
   async function EmailSent(event){
@@ -111,31 +125,37 @@ function Settings(props) {
     const emailRegex = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
     if (!emailRegex.test(newEmail)) {
       isValid = false;
+      alert('Invalid Email');
       validationMessage += 'Invalid email address. ';
+      setErrorMessage(validationMessage);
+    } else {
+      setErrorMessage('');
     }
     if (!isValid) {
       setErrorMessage(validationMessage);
     } else {
       setEmailSent(true);
-      const res = await firebase.auth().createUserWithEmailAndPassword(newEmail, props.user.password)
-      await res.user.sendEmailVerification()
-      .then(() => {
-        setEmailSent(true);
-        console.log("Email sent")
-      }).catch((error) => {
-        console.log(error)
-      })
-      const user = firebase.auth().currentUser;
-      if(user !== null){
-        setFullyVerified(true);
-      }
+      validationMessage = '';
+      setFullyVerified(true); // CAUTION!! remove this
+      // const res = await firebase.auth().createUserWithEmailAndPassword(newEmail, props.user.password)
+      // await res.user.sendEmailVerification()
+      // .then(() => {
+      //   setEmailSent(true);
+      //   console.log("Email sent")
+      // }).catch((error) => {
+      //   console.log(error)
+      // })
+      // const user = firebase.auth().currentUser;
+      // if(user !== null){
+      //   setFullyVerified(true);
+      // }
     }
   }
 
   async function ChangeEmail(event){
     console.log(fullyVerified);
     if (fullyVerified) {
-      setChangeEmail(true);
+      setChangedEmail(true);
       console.log(newEmail);
       const data = {
         email: props.user.email,
@@ -154,6 +174,7 @@ function Settings(props) {
       } catch (error) {
         console.error('Error saving user data:', error); // Handle errors
       }
+      alert("Email Changed");
     }
   }
   
@@ -161,11 +182,12 @@ function Settings(props) {
     event.preventDefault();
     const phoneNumber = "+91" + props.user.phoneNumber;
     let validationMessage = '';
+    let isValid = true;
     // Validate phone number
-    if (!props.user.phoneNumber.trim()) {
+    if (!newPhone.trim()) {
       isValid = false;
       validationMessage += 'Phone number is required. ';
-    } else if (!/^\(?([0-9]{3})\)?[-. ]?([0-9]{3})[-. ]?([0-9]{4})$/.test(props.user.phoneNumber)) {
+    } else if (!/^\(?([0-9]{3})\)?[-. ]?([0-9]{3})[-. ]?([0-9]{4})$/.test(newPhone)) {
       isValid = false;
       validationMessage += 'Invalid phone number format. ';
     }  
@@ -174,6 +196,7 @@ function Settings(props) {
     } else {
       setOtpSent(true);
       console.log(props.user.phoneNumber);
+      setErrorMessage('');
       // configureCaptcha();
       // const appVerifier = window.recaptchaVerifier;
       // console.log(newPhone)
@@ -187,7 +210,7 @@ function Settings(props) {
     }
   }
 
-  console.log(props.user);
+  // console.log(props.user);
 
   return (
     <ThemeProvider theme={defaultTheme}>
@@ -259,7 +282,7 @@ function Settings(props) {
                   </Button>
                 </Grid>
               )}
-              {emailSent && (
+              {emailSent && !changedEmail && (
                 <Grid item xs={12} sm={6}>
                   <Button
                   type="change-email"

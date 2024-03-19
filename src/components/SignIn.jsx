@@ -25,7 +25,7 @@ import { useDispatch } from 'react-redux';
 
 const defaultTheme = createTheme();
 
-function SignUp(props) {
+function SignIn(props) {
   
   const dispatch = useDispatch(); 
   const [firstName, setFirstName] = useState('');
@@ -80,8 +80,7 @@ function SignUp(props) {
       //   console.log(JSON.stringify(user))
       //   alert("User Verified")
       // }).catch((error) => {
-      //   alert("Wrong OTP")
-      //   console.log("Wrong Otp" + error)
+      //   console.log("Wrong Otp")
       // });
     } else {
       setErrorMessage(validationMessage);
@@ -126,9 +125,7 @@ function SignUp(props) {
     const emailRegex = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
     if (!emailRegex.test(email)) {
       isValid = false;
-      alert('Invalid Email');
       validationMessage += 'Invalid email address. ';
-      setErrorMessage(validationMessage);
     }
     if (isValid) {
       setEmailSent(true);
@@ -170,97 +167,78 @@ function SignUp(props) {
     event.preventDefault();
 
     let isValid = true;
-    let validationMessage = '';
-
-    // Validate first name
-    if (!firstName.trim()) {
-      isValid = false;
-      validationMessage += 'First name is required. ';
-    } else if (!/^[A-Za-z]+$/.test(firstName)) {
-      isValid = false;
-      validationMessage += 'First name must only contain alphabets. ';
-    }
-
-    // Validate last name
-    if (!lastName.trim()) {
-      isValid = false;
-      validationMessage += 'Last name is required. ';
-    } else if (!/^[A-Za-z]+$/.test(lastName)) {
-      isValid = false;
-      validationMessage += 'Last name must only contain alphabets. ';
-    }
-    
-    // Validate phone number
-    if (!phone.trim()) {
-      isValid = false;
-      validationMessage += 'Phone number is required. ';
-    } else if (!/^\(?([0-9]{3})\)?[-. ]?([0-9]{3})[-. ]?([0-9]{4})$/.test(phone)) {
-      isValid = false;
-      validationMessage += 'Invalid phone number format. ';
-    }    
+    let validationMessage = '';  
 
     // Validate email
     const emailRegex = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
     if (!emailRegex.test(email)) {
       isValid = false;
       validationMessage += 'Invalid email address. ';
+    } else {
+        isValid = true;
+        validationMessage = '';
     }
 
     // Validate password (basic example, consider stronger requirements)
     if (!password.trim() || password.length < 6) {
       isValid = false;
       validationMessage += 'Password is required and must be at least 6 characters long. ';
-    }
-
-    if(!fullyVerified){
-      isValid = false;
+    } else {
+        isValid = true;
+        validationMessage = '';
     }
 
     if (!isValid) {
       setErrorMessage(validationMessage);
     } else {
-      // Assuming successful validation, perform any necessary actions (e.g., form submission)
-      console.log('Form data:', {
-        firstName,
-        lastName,
-        email,
-        password,
-      });
-      setErrorMessage(null); // Clear any previous error message
-    }
-    if (!fullyVerified){
-      setErrorMessage("Not verified");
-    } else {
-      setErrorMessage("Thank you for Signing up")
+        setErrorMessage("Thank you for Signing up")
+  
+        
+        const data1 = {
+            email: email,
+        };
 
-      const data = {
-        username: firstName,
-        email: email,
-        password: password,
-        phoneNumber: phone,
-      };
 
-      // props.user.email = finalEmail;
-      // props.user.password = password;
-      // props.user.phoneNumber = phone;
-      // console.log(props);
-      dispatch(setUser(data));
-      console.log(props);
-
-      try {
-        const response = await fetch('http://localhost:9000/users', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(data),
-        });
-        if (!response.ok) {
-          throw new Error(`API call failed with status ${response.status}`);
+        try {
+            const response = await fetch('http://localhost:9000/users/login/handelGetUsers', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data1),
+            });
+            const textData = await response.text(); // Handle successful response
+            const jsonData = JSON.parse(textData);
+            console.log(jsonData);
+            setPhone(jsonData['phoneNumber']);
+            setFirstName(jsonData['username']);
+            setErrorMessage(null); // Clear any previous error message
+        } catch (error) {
+            console.error('Error saving user data:', error); // Handle errors
         }
-        console.log(response.status); // Handle successful response
-      } catch (error) {
-        console.error('Error saving user data:', error); // Handle errors
-      }
-      setSignedUp(true);
+
+        const data = {
+            username: firstName,
+            email: email,
+            password: password,
+            phoneNumber: phone,
+        };
+        console.log(data);
+
+        dispatch(setUser(data));
+        console.log(props);
+
+        try {
+            const response = await fetch('http://localhost:9000/users/login', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data),
+            });
+            console.log(response.body); // Handle successful response
+            setErrorMessage(null); // Clear any previous error message
+            
+        } catch (error) {
+            console.error('Error saving user data:', error); // Handle errors
+        }
+        setSignedUp(true);
     }
   };
 
@@ -282,87 +260,12 @@ function SignUp(props) {
           </Avatar>
           {errorMessage && <p style={{ color: 'red' }}>{errorMessage}</p>}
           <Typography component="h1" variant="h5">
-            Sign up
+            Sign In
           </Typography>
           <Box component="form" noValidate onSubmit={handleSubmit} sx={{ mt: 3 }}>
             <div id="sign-in-button"></div>
             <Grid container spacing={2}>
-              <Grid item xs={12} sm={6}>
-                <TextField
-                  autoComplete="given-name"
-                  name="firstName"
-                  required
-                  fullWidth
-                  id="firstName"
-                  label="First Name"
-                  autoFocus
-                  value={firstName}
-                  onChange={(event) => setFirstName(event.target.value)}
-                />
-              </Grid>
-              <Grid item xs={12} sm={6}>
-                <TextField
-                  required
-                  fullWidth
-                  id="lastName"
-                  label="Last Name"
-                  name="lastName"
-                  autoComplete="family-name"
-                  value={lastName}
-                  onChange={(event) => setLastName(event.target.value)}
-                />
-              </Grid>
-              <Grid item xs={12} sm={6}>
-                <TextField
-                  required
-                  fullWidth
-                  id="phone"
-                  label="Phone Number"
-                  name="phone"
-                  autoComplete="phone"
-                  value={phone}
-                  onChange={(event) => setPhone(event.target.value)}
-                />
-              </Grid>
-              {!otpSent && (
-                <Grid item xs={12} sm={6}>
-                  <Button
-                  type="otp-send"
-                  variant="contained"
-                  sx={{ mt: 2, mb: 2 }}
-                  onClick={SendOtp}
-                  >
-                    Send Otp
-                  </Button>
-                </Grid>
-              )}
-              {otpSent && !otpVerified && (
-                <Grid item xs={12} sm={6}>
-                  <TextField
-                    required
-                    fullWidth
-                    id="otp"
-                    label="OTP"
-                    name="otp"
-                    autoComplete="family-name"
-                    value={otp}
-                    onChange={(event) => setOtp(event.target.value)}
-                  />
-                </Grid>
-              )}
-              {otpSent && !otpVerified && (
-                <Grid item xs={12} sm={6}>
-                  <Button
-                  type="otp-verify"
-                  variant="contained"
-                  sx={{ mt: 2, mb: 2 }}
-                  onClick={VerifyOtp}
-                  >
-                    Verify Otp
-                  </Button>
-                </Grid>
-              )}
-              {otpVerified && (
+              {(
                 <Grid item xs={12} sm={6}>
                   <TextField
                     required
@@ -376,7 +279,7 @@ function SignUp(props) {
                   />
                 </Grid>
               )}
-              {otpVerified && (
+              {(
                 <Grid item xs={12} sm={6}>
                   <TextField
                     required
@@ -403,24 +306,6 @@ function SignUp(props) {
                   </Button>
                 </Grid>
               )}
-              {otpVerified && !emailSent && (
-                <Grid item xs={12} sm={6}>
-                  <Button
-                  type="email-del"
-                  variant="contained"
-                  sx={{ mt: 2, mb: 2 }}
-                  onClick={EmailDelete}
-                  >
-                    Delete Email
-                  </Button>
-                </Grid>
-              )}
-              <Grid item xs={12}>
-                <FormControlLabel
-                  control={<Checkbox value="allowExtraEmails" color="primary" />}
-                  label="I want to receive inspiration, marketing promotions and updates via email."
-                />
-              </Grid>
             </Grid>
             <div id="recaptcha-container"></div>
             <Button
@@ -429,7 +314,7 @@ function SignUp(props) {
               variant="contained"
               sx={{ mt: 3, mb: 2 }}
             >
-              Sign Up
+              Sign In
             </Button>
             <Grid container justifyContent="flex-end">
               <Grid item>
@@ -455,4 +340,4 @@ const mapDispatchToProps = (dispatch) => ({
 	setUser: (userData) => dispatch(setUser(userData)),
 });
 
-export default connect(mapStateToProps, mapDispatchToProps)(SignUp);
+export default connect(mapStateToProps, mapDispatchToProps)(SignIn);
