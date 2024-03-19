@@ -5,7 +5,11 @@ const userSchema = new mongoose.Schema({
     email: { type:String , unique: true },
     password: {type:String ,required:true},
     phoneNumber: {type:Number , unique:true},
-    numberOfTimesLoggedIn:{type:Number}
+    numberOfTimesLoggedIn:{type:Number},
+    lastLogin: {
+      type: Date,
+      default: Date.now
+    }
   } ,{timestamps:true});
   
 

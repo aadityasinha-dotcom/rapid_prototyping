@@ -154,19 +154,19 @@ function Login(props) {
 	const handleClick = () => {
 		setSignUp(true);
 	};
-	
 
 	return (
 		<Container>
 			{props.user && <Redirect to="/feed" />}
 			{signUp && <Redirect to="/SignUp" />}
+			{isLoggedIn && <Redirect to="/SignIn" />}
 			<Nav>
 				<a href="/">
 					<img src="/images/login-logo.svg" alt="" />
 				</a>
 				<div>
 					<Join onClick={handleClick}>Join Now</Join>
-					<SignIn>Sign In</SignIn>
+					<SignIn onClick={handleSignInClick}>Sign In</SignIn>
 				</div>
 			</Nav>
 			<Section>

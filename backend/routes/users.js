@@ -5,6 +5,6 @@ router.post("/",handelUserSignup);
 router.post("/login",handelUserlogin);
 router.post("/login/changeEmail",changeEmail);
 router.post("/login/changePhoneNumber",changePhoneNumber);
-router.get("/login/handelGetUsers", handelGetUsers);
+router.post("/login/handelGetUsers", handelGetUsers);
 router.get("/login/handelAllUsers" , handelAllUsers);
 module.exports = router;
