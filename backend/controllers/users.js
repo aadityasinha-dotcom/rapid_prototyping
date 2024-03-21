@@ -1,5 +1,4 @@
-const User = require("../models/users");
-const{v4:uuidv4} = require("uuid");
+const {User , UserSession } = require("../models/users");
 const {setUser} = require("../service/auth");
 
 async function handelUserSignup(req,res){
@@ -11,6 +10,7 @@ async function handelUserSignup(req,res){
         password,
         phoneNumber
     })
+
     console.log("user created from model");
     return res.send("user created");
 }
@@ -22,25 +22,36 @@ async function handelUserlogin(req,res){
     if(!user) return res.send("invalid email or password");
     const token = setUser(user);
     res.cookie("uid",token);
-    user.numberOfTimesLoggedIn = user.numberOfTimesLoggedIn ? Number(user.numberOfTimesLoggedIn) + 1 : 1;
-
-    user.lastLogin = new Date();
-    await user.save()
-    console.log("user" + user);
-    return res.status(200).send(user + "login successfull");
+    const username = user.username;
+    await  UserSession.create({
+        username
+    })
+    const UserSessionForUser = await UserSession.findOne({username});
+    UserSessionForUser.numberOfTimesLoggedIn = UserSessionForUser.numberOfTimesLoggedIn ? Number(UserSessionForUser.numberOfTimesLoggedIn) + 1 : 1;
+    UserSessionForUser.lastLogin = new Date();
+    await user.save();
+    await UserSessionForUser.save();
+    console.log("user" + user + "user session " + UserSessionForUser);
+    return res.status(200).send(user + "login successfull" + "sessions" + UserSessionForUser);
 
  }
 
  async function changeEmail(req,res)
  {
     const{email , newEmail} = req.body;
-    console.log("body for email change" + JSON.stringify(req.body) + "previous email" + email);
+    console.log("session id of request " + req.sessionID)
+    console.log("body for email change" + req.toString() + "previous email" + email);
     const user = await User.findOne({email});
     if(!user) res.send("invalid email");
-    console.log("user after email" + user);
+    const username = user.username;
+    const UserSessionForUser = await UserSession.findOne({username});
+    UserSessionForUser.numberOfTimesLoggedIn = UserSessionForUser.numberOfTimesLoggedIn ? Number(UserSessionForUser.numberOfTimesLoggedIn) + 1 : 1;
+    UserSessionForUser.lastLogin = new Date();
     user.email = newEmail;
+    console.log("user after email" + user);
     user.save();
-    res.send("email changed" + user);
+    UserSessionForUser.save();
+    res.send("email changed" + user + "sessions " + UserSessionForUser );
 
  }
 
@@ -50,9 +61,13 @@ async function handelUserlogin(req,res){
     const user = await User.findOne({phoneNumber});
     if(!user) res.send("invalid phoneNumber");
     user.phoneNumber = newPhoneNumber;
+    const username = user.username;
+    const UserSessionForUser = await UserSession.findOne({username});
+    UserSessionForUser.numberOfTimesLoggedIn = UserSessionForUser.numberOfTimesLoggedIn ? Number(UserSessionForUser.numberOfTimesLoggedIn) + 1 : 1;
+    UserSessionForUser.lastLogin = new Date();
     user.save();
-    res.send("phone number changed" + user);
-
+    UserSessionForUser.save();
+    res.send("phone number changed" + user + "sessions" + UserSessionForUser);
  }
 
  async function handelGetUsers(req,res)
@@ -67,6 +82,8 @@ async function handelAllUsers(req,res)
 {
     const user = await User.find({});
     if(!user) res.send("wrong email address");
-    res.send(user);
+    console.log("session id of request " + req);
+    const UserSessionForUser = await UserSession.find({});
+    res.send("details of all user are"  + user + "details of sessions are" + UserSessionForUser);
 }
 module.exports = {handelUserSignup , handelUserlogin ,changeEmail , changePhoneNumber , handelGetUsers , handelAllUsers};
