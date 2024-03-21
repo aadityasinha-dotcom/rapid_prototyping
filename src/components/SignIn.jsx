@@ -232,13 +232,18 @@ function SignIn(props) {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(data),
             });
-            console.log(response.body); // Handle successful response
-            setErrorMessage(null); // Clear any previous error message
+            const textData = await response.text();
+            console.log(textData); // Handle successful response
+            if (textData.includes('invalid')) {
+              setErrorMessage("Invalid Credentials");
+            } else {
+              setSignedUp(true);
+              setErrorMessage(null); // Clear any previous error message
+            }
             
         } catch (error) {
             console.error('Error saving user data:', error); // Handle errors
         }
-        setSignedUp(true);
     }
   };
 
@@ -317,11 +322,6 @@ function SignIn(props) {
               Sign In
             </Button>
             <Grid container justifyContent="flex-end">
-              <Grid item>
-                <Link href="#" variant="body2">
-                  Already have an account? Sign in
-                </Link>
-              </Grid>
             </Grid>
           </Box>
         </Box>
