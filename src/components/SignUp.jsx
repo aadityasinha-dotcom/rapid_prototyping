@@ -1,5 +1,7 @@
 import * as React from 'react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import 'react-phone-number-input/style.css'
+import PhoneInput from 'react-phone-number-input'
 import Avatar from '@mui/material/Avatar';
 import Button from '@mui/material/Button';
 import CssBaseline from '@mui/material/CssBaseline';
@@ -15,13 +17,33 @@ import Container from '@mui/material/Container';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import firebase from "firebase/app";
 import { Redirect } from "react-router";
-import { getAuth, RecaptchaVerifier } from "firebase/auth";
-import { ConfirmationNumber } from '@mui/icons-material';
+import intlTelInput from 'intl-tel-input';
+import ReactGeocode from 'react-geocode';
 import { setUser } from '../action';
 import { connect } from "react-redux";
 import { useDispatch } from 'react-redux'; 
+import styled from "styled-components";
 
 // TODO remove, this demo shouldn't need to reset the theme.
+
+const Country = styled.section`
+	display: flex;
+	flex-wrap: wrap;
+	align-content: start;
+	min-height: 1px;
+	padding-bottom: 1px;
+	padding-top: 4px;
+	padding: 12px 0;
+	position: relative;
+	width: 100%;
+	max-width: 8px;
+	align-items: center;
+	margin: auto;
+
+	@media (max-width: 768px) {
+		min-height: 0;
+	}
+`;
 
 const defaultTheme = createTheme();
 
@@ -32,6 +54,7 @@ function SignUp(props) {
   const [lastName, setLastName] = useState('');
   const [email, setEmail] = useState('');
   const [finalEmail, setFinalEmail] = useState('');
+  const [country, setCountry] = useState('+91');
   const [phone, setPhone] = useState('');
   const [otp, setOtp] = useState('');
   const [otpSent, setOtpSent] = useState(false);
@@ -47,6 +70,46 @@ function SignUp(props) {
     password: '',
     phoneNumber: '',
   });  
+  const [lat, setLat] = useState(null);
+  const [long, setLong] = useState(null);
+  const [countryCode, setCountryCode] = useState('');
+  const [ip, setIP] = useState("");
+
+  const apiKey = "e50e033f8d5141e284e04e81a0a1311a";
+
+  useEffect(() => {
+
+    const apiKey = '9916d506456c9367ead7c864d0c9446faf041cc733d6e79566b9966a';
+
+    const fetchData = async () => {
+      try {
+        const res = await fetch(`https://api.ipdata.co?api-key=${apiKey}&fields=calling_code`);
+        const textData = await res.text();
+        const jsonData = JSON.parse(textData);
+        setCountryCode("+"+jsonData['calling_code']);
+        console.log(jsonData['calling_code']);
+      } catch (error) {
+        setErrorMessage(error.message);
+      }
+    }
+
+    // fetchData();
+  }, []);
+
+  // const getUserCoordinates = () => {
+  //   if(!geolocationAPI) {
+  //     console.log('Geolocation API is not available in your browser!');
+  //   } else {
+  //     geolocationAPI.getCurrentPosition((position) => {
+  //       const { coords } = position;
+  //       setLat(coords.latitude);
+  //       setLong(coords.longitude);
+  //     }, (error) => {
+  //       console.log('Something went wrong getting your position!');
+  //     })
+  //   }
+  // }
+
 
   const configureCaptcha = () => {
     window.recaptchaVerifier = new firebase.auth.RecaptchaVerifier('sign-in-button', {
@@ -92,6 +155,7 @@ function SignUp(props) {
     event.preventDefault();
     let isValid = true;
     let validationMessage = '';
+    console.log("+" + country + phone);
     // Validate phone number
     if (!phone.trim()) {
       isValid = false;
@@ -266,181 +330,186 @@ function SignUp(props) {
 
   return (
     <ThemeProvider theme={defaultTheme}>
-      {signedUp && <Redirect to="/feed" />}
-      <Container component="main" maxWidth="xs">
-        <CssBaseline />
-        <Box
-          sx={{
-            marginTop: 8,
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-          }}
-        >
-          <Avatar sx={{ m: 1, bgcolor: 'secondary.main' }}>
-            <LockOutlinedIcon />
-          </Avatar>
-          {errorMessage && <p style={{ color: 'red' }}>{errorMessage}</p>}
-          <Typography component="h1" variant="h5">
-            Sign up
-          </Typography>
-          <Box component="form" noValidate onSubmit={handleSubmit} sx={{ mt: 3 }}>
-            <div id="sign-in-button"></div>
-            <Grid container spacing={2}>
-              <Grid item xs={12} sm={6}>
-                <TextField
-                  autoComplete="given-name"
-                  name="firstName"
-                  required
-                  fullWidth
-                  id="firstName"
-                  label="First Name"
-                  autoFocus
-                  value={firstName}
-                  onChange={(event) => setFirstName(event.target.value)}
-                />
-              </Grid>
-              <Grid item xs={12} sm={6}>
-                <TextField
-                  required
-                  fullWidth
-                  id="lastName"
-                  label="Last Name"
-                  name="lastName"
-                  autoComplete="family-name"
-                  value={lastName}
-                  onChange={(event) => setLastName(event.target.value)}
-                />
-              </Grid>
-              <Grid item xs={12} sm={6}>
-                <TextField
-                  required
-                  fullWidth
-                  id="phone"
-                  label="Phone Number"
-                  name="phone"
-                  autoComplete="phone"
-                  value={phone}
-                  onChange={(event) => setPhone(event.target.value)}
-                />
-              </Grid>
-              {!otpSent && (
+      <div id="google_translate_element">
+        {signedUp && <Redirect to="/feed" />}
+        <Container component="main" maxWidth="xs">
+          <CssBaseline />
+          <Box
+            sx={{
+              marginTop: 8,
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+            }}
+          >
+            <Avatar sx={{ m: 1, bgcolor: 'secondary.main' }}>
+              <LockOutlinedIcon />
+            </Avatar>
+            {errorMessage && <p style={{ color: 'red' }}>{errorMessage}</p>}
+            <Typography component="h1" variant="h5">
+              Sign up
+            </Typography>
+            <Box component="form" noValidate onSubmit={handleSubmit} sx={{ mt: 3 }}>
+              <div id="sign-in-button"></div>
+              <Grid container spacing={2}>
                 <Grid item xs={12} sm={6}>
-                  <Button
-                  type="otp-send"
-                  variant="contained"
-                  sx={{ mt: 2, mb: 2 }}
-                  onClick={SendOtp}
-                  >
-                    Send Otp
-                  </Button>
+                  <TextField
+                    autoComplete="given-name"
+                    name="firstName"
+                    required
+                    fullWidth
+                    id="firstName"
+                    label="First Name"
+                    autoFocus
+                    value={firstName}
+                    onChange={(event) => setFirstName(event.target.value)}
+                  />
                 </Grid>
-              )}
-              {otpSent && !otpVerified && (
                 <Grid item xs={12} sm={6}>
                   <TextField
                     required
                     fullWidth
-                    id="otp"
-                    label="OTP"
-                    name="otp"
+                    id="lastName"
+                    label="Last Name"
+                    name="lastName"
                     autoComplete="family-name"
-                    value={otp}
-                    onChange={(event) => setOtp(event.target.value)}
+                    value={lastName}
+                    onChange={(event) => setLastName(event.target.value)}
                   />
                 </Grid>
-              )}
-              {otpSent && !otpVerified && (
-                <Grid item xs={12} sm={6}>
-                  <Button
-                  type="otp-verify"
-                  variant="contained"
-                  sx={{ mt: 2, mb: 2 }}
-                  onClick={VerifyOtp}
-                  >
-                    Verify Otp
-                  </Button>
-                </Grid>
-              )}
-              {otpVerified && (
-                <Grid item xs={12} sm={6}>
+                <Country>
+                  +91
+                </Country>
+                <Grid item xs={12} sm={5}>
                   <TextField
                     required
                     fullWidth
-                    id="email"
-                    label="Email Address"
-                    name="email"
-                    autoComplete="email"
-                    value={email}
-                    onChange={(event) => setEmail(event.target.value)}
+                    id="phone"
+                    label="Phone Number"
+                    name="phone"
+                    autoComplete="phone"
+                    value={phone}
+                    onChange={(event) => setPhone(event.target.value)}
                   />
                 </Grid>
-              )}
-              {otpVerified && (
-                <Grid item xs={12} sm={6}>
-                  <TextField
-                    required
-                    fullWidth
-                    name="password"
-                    label="Password"
-                    type="password"
-                    id="password"
-                    autoComplete="new-password"
-                    value={password}
-                    onChange={(event) => setPassword(event.target.value)}
+                {!otpSent && (
+                  <Grid item xs={12} sm={6}>
+                    <Button
+                    type="otp-send"
+                    variant="contained"
+                    sx={{ mt: 2, mb: 2 }}
+                    onClick={SendOtp}
+                    >
+                      Send Otp
+                    </Button>
+                  </Grid>
+                )}
+                {otpSent && !otpVerified && (
+                  <Grid item xs={12} sm={6}>
+                    <TextField
+                      required
+                      fullWidth
+                      id="otp"
+                      label="OTP"
+                      name="otp"
+                      autoComplete="family-name"
+                      value={otp}
+                      onChange={(event) => setOtp(event.target.value)}
+                    />
+                  </Grid>
+                )}
+                {otpSent && !otpVerified && (
+                  <Grid item xs={12} sm={6}>
+                    <Button
+                    type="otp-verify"
+                    variant="contained"
+                    sx={{ mt: 2, mb: 2 }}
+                    onClick={VerifyOtp}
+                    >
+                      Verify Otp
+                    </Button>
+                  </Grid>
+                )}
+                {otpVerified && (
+                  <Grid item xs={12} sm={6}>
+                    <TextField
+                      required
+                      fullWidth
+                      id="email"
+                      label="Email Address"
+                      name="email"
+                      autoComplete="email"
+                      value={email}
+                      onChange={(event) => setEmail(event.target.value)}
+                    />
+                  </Grid>
+                )}
+                {otpVerified && (
+                  <Grid item xs={12} sm={6}>
+                    <TextField
+                      required
+                      fullWidth
+                      name="password"
+                      label="Password"
+                      type="password"
+                      id="password"
+                      autoComplete="new-password"
+                      value={password}
+                      onChange={(event) => setPassword(event.target.value)}
+                    />
+                  </Grid>
+                )}
+                {otpVerified && !emailSent && (
+                  <Grid item xs={12} sm={6}>
+                    <Button
+                    type="email-send"
+                    variant="contained"
+                    sx={{ mt: 2, mb: 2 }}
+                    onClick={EmailSent}
+                    >
+                      Send Link
+                    </Button>
+                  </Grid>
+                )}
+                {otpVerified && !emailSent && (
+                  <Grid item xs={12} sm={6}>
+                    <Button
+                    type="email-del"
+                    variant="contained"
+                    sx={{ mt: 2, mb: 2 }}
+                    onClick={EmailDelete}
+                    >
+                      Delete Email
+                    </Button>
+                  </Grid>
+                )}
+                <Grid item xs={12}>
+                  <FormControlLabel
+                    control={<Checkbox value="allowExtraEmails" color="primary" />}
+                    label="I want to receive inspiration, marketing promotions and updates via email."
                   />
                 </Grid>
-              )}
-              {otpVerified && !emailSent && (
-                <Grid item xs={12} sm={6}>
-                  <Button
-                  type="email-send"
-                  variant="contained"
-                  sx={{ mt: 2, mb: 2 }}
-                  onClick={EmailSent}
-                  >
-                    Send Link
-                  </Button>
-                </Grid>
-              )}
-              {otpVerified && !emailSent && (
-                <Grid item xs={12} sm={6}>
-                  <Button
-                  type="email-del"
-                  variant="contained"
-                  sx={{ mt: 2, mb: 2 }}
-                  onClick={EmailDelete}
-                  >
-                    Delete Email
-                  </Button>
-                </Grid>
-              )}
-              <Grid item xs={12}>
-                <FormControlLabel
-                  control={<Checkbox value="allowExtraEmails" color="primary" />}
-                  label="I want to receive inspiration, marketing promotions and updates via email."
-                />
               </Grid>
-            </Grid>
-            <div id="recaptcha-container"></div>
-            <Button
-              type="submit"
-              fullWidth
-              variant="contained"
-              sx={{ mt: 3, mb: 2 }}
-            >
-              Sign Up
-            </Button>
-            <Grid container justifyContent="flex-end">
-              <Grid item>
-                <Link href="#" variant="body2">
-                  Already have an account? Sign in
-                </Link>
+              <div id="recaptcha-container"></div>
+              <Button
+                type="submit"
+                fullWidth
+                variant="contained"
+                sx={{ mt: 3, mb: 2 }}
+              >
+                Sign Up
+              </Button>
+              <Grid container justifyContent="flex-end">
+                <Grid item>
+                  <Link href="#" variant="body2">
+                    Already have an account? Sign in
+                  </Link>
+                </Grid>
               </Grid>
-            </Grid>
+            </Box>
           </Box>
-        </Box>
-      </Container>
+        </Container>
+      </div>
     </ThemeProvider>
   );
 }
