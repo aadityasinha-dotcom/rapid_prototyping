@@ -93,7 +93,7 @@ function SignUp(props) {
       }
     }
 
-    // fetchData();
+    fetchData();
   }, []);
 
   // const getUserCoordinates = () => {
@@ -378,7 +378,7 @@ function SignUp(props) {
                   />
                 </Grid>
                 <Country>
-                  +91
+                  {countryCode}
                 </Country>
                 <Grid item xs={12} sm={5}>
                   <TextField
