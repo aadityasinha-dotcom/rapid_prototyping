@@ -312,7 +312,7 @@ function SignUp(props) {
       console.log(props);
 
       try {
-        const response = await fetch('http://localhost:9000/users', {
+        const response = await fetch('https://linkedinapi-1.onrender.com/users', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(data),

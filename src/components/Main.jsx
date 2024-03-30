@@ -4,6 +4,7 @@ import ReactPlayer from "react-player";
 import styled from "styled-components";
 import { getArticlesAPI, updateArticleAPI } from "../action";
 import PostalModal from "./PostalModal";
+import Cookies from 'js-cookie';
 
 const Container = styled.div`
 	grid-area: main;
@@ -206,6 +207,11 @@ function Main(props) {
 	const [showModal, setShowModal] = useState("close");
 
 	useEffect(() => {
+		const handleScroll = () => {
+			const scrollY = window.scrollY; // Optional: Access scroll position
+			console.log(scrollY); // Show element after 100px scroll
+		};		
+		window.addEventListener('scroll', handleScroll);
 		props.getArticles();
 	}, []);
 
@@ -216,12 +222,15 @@ function Main(props) {
 		}
 		switch (showModal) {
 			case "open":
+				console.log('Post Close');
 				setShowModal("close");
 				break;
 			case "close":
+				console.log('Post Open');
 				setShowModal("open");
 				break;
 			default:
+				console.log('Post Close');
 				setShowModal("close");
 				break;
 		}
@@ -255,14 +264,19 @@ function Main(props) {
 		props.likeHandler(payload);
 	}
 
+	const handleMouseOver = () => {
+		console.log('Mouse hovered over!');
+	};	
+
 	console.log(props.user);
+	console.log(localStorage.getItem("jwtToken"));
 
 	return (
 		<Container>
 			<ShareBox>
 				<div>
 					{props.user.photoURL ? <img src={props.user.photoURL} alt="" /> : <img src="/images/user.svg" alt="" />}
-					<button onClick={clickHandler} disabled={props.loading ? true : false}>
+					<button onClick={clickHandler} onMouseOver={handleMouseOver} disabled={props.loading ? true : false}>
 						Start a post
 					</button>
 				</div>

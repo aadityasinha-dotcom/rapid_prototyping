@@ -20,6 +20,7 @@ import { ConfirmationNumber } from '@mui/icons-material';
 import { setUser } from '../action';
 import { connect } from "react-redux";
 import { useDispatch } from 'react-redux'; 
+import Cookies from 'js-cookie';
 
 // TODO remove, this demo shouldn't need to reset the theme.
 
@@ -161,7 +162,12 @@ function SignIn(props) {
   const handleChange = (event) => {
     setFormData({ ...formData, [event.target.name]: event.target.value });
   };
-  
+
+  const handleLoginSuccess = (userData) => {
+    // Cookies.set('jwtToken', JSON.stringify(userData), { expires: 1, path: '/', httpOnly: true }); // Set cookie options
+    localStorage.setItem("jwtToken", userData);
+    console.log('Token has been set');
+  };
 
   async function handleSubmit(event){
     event.preventDefault();
@@ -200,7 +206,7 @@ function SignIn(props) {
 
 
         try {
-            const response = await fetch('http://localhost:9000/users/login/handelGetUsers', {
+            const response = await fetch('https://linkedinapi-1.onrender.com/users/login/handelGetUsers', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(data1),
@@ -227,7 +233,7 @@ function SignIn(props) {
         console.log(props);
 
         try {
-            const response = await fetch('http://localhost:9000/users/login', {
+            const response = await fetch('https://linkedinapi-1.onrender.com/users/login', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(data),
@@ -237,10 +243,11 @@ function SignIn(props) {
             if (textData.includes('invalid')) {
               setErrorMessage("Invalid Credentials");
             } else {
+              handleLoginSuccess(textData);
               setSignedUp(true);
               setErrorMessage(null); // Clear any previous error message
             }
-            
+
         } catch (error) {
             console.error('Error saving user data:', error); // Handle errors
         }
