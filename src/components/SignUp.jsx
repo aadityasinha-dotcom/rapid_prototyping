@@ -75,8 +75,6 @@ function SignUp(props) {
   const [countryCode, setCountryCode] = useState('');
   const [ip, setIP] = useState("");
 
-  const apiKey = "e50e033f8d5141e284e04e81a0a1311a";
-
   useEffect(() => {
 
     const apiKey = '9916d506456c9367ead7c864d0c9446faf041cc733d6e79566b9966a';
@@ -95,20 +93,6 @@ function SignUp(props) {
 
     fetchData();
   }, []);
-
-  // const getUserCoordinates = () => {
-  //   if(!geolocationAPI) {
-  //     console.log('Geolocation API is not available in your browser!');
-  //   } else {
-  //     geolocationAPI.getCurrentPosition((position) => {
-  //       const { coords } = position;
-  //       setLat(coords.latitude);
-  //       setLong(coords.longitude);
-  //     }, (error) => {
-  //       console.log('Something went wrong getting your position!');
-  //     })
-  //   }
-  // }
 
 
   const configureCaptcha = () => {

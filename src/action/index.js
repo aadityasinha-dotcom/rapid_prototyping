@@ -44,6 +44,7 @@ export function signInAPI() {
 export function signOutAPI() {
 	return (dispatch) => {
 		localStorage.removeItem("jwtToken");
+    localStorage.removeItem("email");
 		console.log("Token removed");
 		auth.signOut()
 			.then(() => dispatch(setUser(null)))

@@ -163,9 +163,10 @@ function SignIn(props) {
     setFormData({ ...formData, [event.target.name]: event.target.value });
   };
 
-  const handleLoginSuccess = (userData) => {
+  const handleLoginSuccess = (userData, email) => {
     // Cookies.set('jwtToken', JSON.stringify(userData), { expires: 1, path: '/', httpOnly: true }); // Set cookie options
     localStorage.setItem("jwtToken", userData);
+    localStorage.setItem("email", email);
     console.log('Token has been set');
   };
 
@@ -243,7 +244,7 @@ function SignIn(props) {
             if (textData.includes('invalid')) {
               setErrorMessage("Invalid Credentials");
             } else {
-              handleLoginSuccess(textData);
+              handleLoginSuccess(textData, email);
               setSignedUp(true);
               setErrorMessage(null); // Clear any previous error message
             }
