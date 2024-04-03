@@ -4,6 +4,27 @@ import ReactPlayer from "react-player";
 import styled from "styled-components";
 import { getArticlesAPI, updateArticleAPI } from "../action";
 import PostalModal from "./PostalModal";
+import Cookies from 'js-cookie';
+import Box from '@mui/material/Box';
+import Card from '@mui/material/Card';
+import CardActions from '@mui/material/CardActions';
+import CardContent from '@mui/material/CardContent';
+import Button from '@mui/material/Button';
+import Typography from '@mui/material/Typography';
+import CardHeader from '@mui/material/CardHeader';
+import CardMedia from '@mui/material/CardMedia';
+import Collapse from '@mui/material/Collapse';
+import Avatar from '@mui/material/Avatar';
+import IconButton from '@mui/material/IconButton';
+import { red } from '@mui/material/colors';
+import FavoriteIcon from '@mui/icons-material/Favorite';
+import ShareIcon from '@mui/icons-material/Share';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import MoreVertIcon from '@mui/icons-material/MoreVert';
+import ThumbUpIcon from '@mui/icons-material/ThumbUp';
+import CommentIcon from '@mui/icons-material/Comment';
+import { setUser } from "../action";
+import { useDispatch } from "react-redux";
 
 const Container = styled.div`
 	grid-area: main;
@@ -69,6 +90,16 @@ const ShareBox = styled(CommonBox)`
 		}
 	}
 `;
+
+// const Button = styled.div`
+//   height: 15px;
+//   cursor: pointer;
+//
+// 	&:hover {
+// 		background-color: rgba(0, 0, 0, 0.08);
+// 		color: rgba(0, 0, 0, 1);
+// 	}
+// `
 
 const Article = styled(CommonBox)`
 	padding: 0;
@@ -204,10 +235,42 @@ const Content = styled.div`
 
 function Main(props) {
 	const [showModal, setShowModal] = useState("close");
+  const dispatch = useDispatch(); 
 
 	useEffect(() => {
+		const handleScroll = () => {
+			const scrollY = window.scrollY; // Optional: Access scroll position
+			console.log(scrollY); // Show element after 100px scroll
+		};		
+
+    const userEmail = localStorage.getItem("email");
+    console.log(userEmail);
+
+    const fetchData = async () => {
+      const response = await fetch('https://linkedinapi-1.onrender.com/users/login/handelGetUsers', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({email: userEmail}),
+      });
+      const textData = await response.text(); // Handle successful response
+      const jsonData = JSON.parse(textData);
+      console.log(jsonData);
+      const data = {
+        username: jsonData['username'],
+        email: jsonData['email'],
+        password: jsonData['password'],
+        phoneNumber: jsonData['phoneNumber'],
+      };
+      dispatch(setUser(data));
+    }
+
+    if (userEmail && !props.user.phoneNumber) {
+      // console.log("yo");
+      fetchData();
+    }
+		// window.addEventListener('scroll', handleScroll);
 		props.getArticles();
-	}, []);
+	}, [props.user.username]);
 
 	const clickHandler = (event) => {
 		event.preventDefault();
@@ -216,12 +279,15 @@ function Main(props) {
 		}
 		switch (showModal) {
 			case "open":
+				console.log('Post Close');
 				setShowModal("close");
 				break;
 			case "close":
+				console.log('Post Open');
 				setShowModal("open");
 				break;
 			default:
+				console.log('Post Close');
 				setShowModal("close");
 				break;
 		}
@@ -255,36 +321,75 @@ function Main(props) {
 		props.likeHandler(payload);
 	}
 
+	const handleMouseOver = () => {
+		console.log('Mouse hovered over!');
+	};	
+
 	console.log(props.user);
+	// console.log(localStorage.getItem("jwtToken"));
 
 	return (
 		<Container>
 			<ShareBox>
 				<div>
 					{props.user.photoURL ? <img src={props.user.photoURL} alt="" /> : <img src="/images/user.svg" alt="" />}
-					<button onClick={clickHandler} disabled={props.loading ? true : false}>
+					<button onClick={clickHandler} onMouseOver={handleMouseOver} disabled={props.loading ? true : false}>
 						Start a post
 					</button>
 				</div>
 				<div>
-					<button>
+					<Button>
 						<img src="/images/photo-icon.svg" alt="" />
 						<span>Photo</span>
-					</button>
-					<button>
+					</Button>
+					<Button>
 						<img src="/images/video-icon.svg" alt="" />
 						<span>Video</span>
-					</button>
-					<button>
+					</Button>
+					<Button>
 						<img src="/images/event-icon.svg" alt="" />
 						<span>Event</span>
-					</button>
-					<button>
+					</Button>
+					<Button>
 						<img src="/images/article-icon.svg" alt="" />
 						<span>Write article</span>
-					</button>
+					</Button>
 				</div>
 			</ShareBox>
+      <Card sx={{ maxWidth: 545 }}>
+        <CardHeader
+          avatar={
+            <Avatar sx={{ bgcolor: red[500] }} aria-label="recipe">
+              R
+            </Avatar>
+          }
+          action={
+            <IconButton aria-label="settings">
+              <MoreVertIcon />
+            </IconButton>
+          }
+          title="Shrimp and Chorizo Paella"
+          subheader="September 14, 2016"
+        />
+        <CardContent>
+          <Typography variant="body2" color="text.secondary">
+            This impressive paella is a perfect party dish and a fun meal to cook
+            together with your guests. Add 1 cup of frozen peas along with the mussels,
+            if you like.
+          </Typography>
+        </CardContent>
+        <CardActions disableSpacing>
+          <IconButton aria-label="like">
+            <ThumbUpIcon />
+          </IconButton>
+          <IconButton aria-label="comment">
+            <CommentIcon />
+          </IconButton>
+          <IconButton aria-label="share">
+            <ShareIcon />
+          </IconButton>
+        </CardActions>
+      </Card>
 			<Content>
 				{props.loading && <img src="/images/spin-loader.gif" alt="" />}
 				{props.articles.length > 0 &&
@@ -362,6 +467,7 @@ const mapStateToProps = (state) => {
 
 const mapDispatchToProps = (dispatch) => ({
 	getArticles: () => dispatch(getArticlesAPI()),
+	setUser: (userData) => dispatch(setUser(userData)),
 	likeHandler: (payload) => dispatch(updateArticleAPI(payload)),
 });
 

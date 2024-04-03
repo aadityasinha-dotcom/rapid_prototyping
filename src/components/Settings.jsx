@@ -200,13 +200,18 @@ function Settings(props) {
       // configureCaptcha();
       // const appVerifier = window.recaptchaVerifier;
       // console.log(newPhone)
-      // firebase.auth().signInWithPhoneNumber(newPhone, appVerifier)
-      //   .then((confirmationResult) => {
-      //     window.confirmationResult = confirmationResult;
-      //     console.log('OTP has been sent')
-      // }).catch((error) => {
-      //   console.log("Not sent")
-      // })
+      // if (newPhone === props.user.phoneNumber) {
+      //   console.warn("Cannot changed to existing number");
+      // } else {
+      //   console.log(props.user.phoneNumber);
+      //   firebase.auth().signInWithPhoneNumber(newPhone, appVerifier)
+      //     .then((confirmationResult) => {
+      //       window.confirmationResult = confirmationResult;
+      //       console.log('OTP has been sent')
+      //   }).catch((error) => {
+      //     console.log("Not sent")
+      //   })
+      // }
     }
   }
 

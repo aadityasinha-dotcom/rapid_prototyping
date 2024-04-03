@@ -20,6 +20,7 @@ import { ConfirmationNumber } from '@mui/icons-material';
 import { setUser } from '../action';
 import { connect } from "react-redux";
 import { useDispatch } from 'react-redux'; 
+import Cookies from 'js-cookie';
 
 // TODO remove, this demo shouldn't need to reset the theme.
 
@@ -161,7 +162,13 @@ function SignIn(props) {
   const handleChange = (event) => {
     setFormData({ ...formData, [event.target.name]: event.target.value });
   };
-  
+
+  const handleLoginSuccess = (userData, email) => {
+    // Cookies.set('jwtToken', JSON.stringify(userData), { expires: 1, path: '/', httpOnly: true }); // Set cookie options
+    localStorage.setItem("jwtToken", userData);
+    localStorage.setItem("email", email);
+    console.log('Token has been set');
+  };
 
   async function handleSubmit(event){
     event.preventDefault();
@@ -237,10 +244,11 @@ function SignIn(props) {
             if (textData.includes('invalid')) {
               setErrorMessage("Invalid Credentials");
             } else {
+              handleLoginSuccess(textData, email);
               setSignedUp(true);
               setErrorMessage(null); // Clear any previous error message
             }
-            
+
         } catch (error) {
             console.error('Error saving user data:', error); // Handle errors
         }
