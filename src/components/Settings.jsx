@@ -82,15 +82,15 @@ function Settings(props) {
     } 
     if (isValid) {
       setOtpVerified(true);
-      // console.log(otp)
-      // const code = otp;
-      // window.confirmationResult.confirm(code).then((result) => {
-      //   const user = result.user;
-      //   console.log(JSON.stringify(user))
-      //   alert("User Verified")
-      // }).catch((error) => {
-      //   console.log("Wrong Otp")
-      // });
+      console.log(otp)
+      const code = otp;
+      window.confirmationResult.confirm(code).then((result) => {
+        const user = result.user;
+        console.log(JSON.stringify(user))
+        alert("User Verified")
+      }).catch((error) => {
+        console.log("Wrong Otp")
+      });
       const data = {
         phoneNumber: Number(props.user.phoneNumber),
         newPhoneNumber: Number(newPhone),
@@ -137,18 +137,18 @@ function Settings(props) {
       setEmailSent(true);
       validationMessage = '';
       setFullyVerified(true); // CAUTION!! remove this
-      // const res = await firebase.auth().createUserWithEmailAndPassword(newEmail, props.user.password)
-      // await res.user.sendEmailVerification()
-      // .then(() => {
-      //   setEmailSent(true);
-      //   console.log("Email sent")
-      // }).catch((error) => {
-      //   console.log(error)
-      // })
-      // const user = firebase.auth().currentUser;
-      // if(user !== null){
-      //   setFullyVerified(true);
-      // }
+      const res = await firebase.auth().createUserWithEmailAndPassword(newEmail, props.user.password)
+      await res.user.sendEmailVerification()
+      .then(() => {
+        setEmailSent(true);
+        console.log("Email sent")
+      }).catch((error) => {
+        console.log(error)
+      })
+      const user = firebase.auth().currentUser;
+      if(user !== null){
+        setFullyVerified(true);
+      }
     }
   }
 
@@ -197,21 +197,21 @@ function Settings(props) {
       setOtpSent(true);
       console.log(props.user.phoneNumber);
       setErrorMessage('');
-      // configureCaptcha();
-      // const appVerifier = window.recaptchaVerifier;
-      // console.log(newPhone)
-      // if (newPhone === props.user.phoneNumber) {
-      //   console.warn("Cannot changed to existing number");
-      // } else {
-      //   console.log(props.user.phoneNumber);
-      //   firebase.auth().signInWithPhoneNumber(newPhone, appVerifier)
-      //     .then((confirmationResult) => {
-      //       window.confirmationResult = confirmationResult;
-      //       console.log('OTP has been sent')
-      //   }).catch((error) => {
-      //     console.log("Not sent")
-      //   })
-      // }
+      configureCaptcha();
+      const appVerifier = window.recaptchaVerifier;
+      console.log(newPhone)
+      if (newPhone === props.user.phoneNumber) {
+        console.warn("Cannot changed to existing number");
+      } else {
+        console.log(props.user.phoneNumber);
+        firebase.auth().signInWithPhoneNumber(newPhone, appVerifier)
+          .then((confirmationResult) => {
+            window.confirmationResult = confirmationResult;
+            console.log('OTP has been sent')
+        }).catch((error) => {
+          console.log("Not sent")
+        })
+      }
     }
   }
 

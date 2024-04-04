@@ -76,13 +76,13 @@ function SignIn(props) {
       setErrorMessage('');
       console.log(otp);
       const code = otp;
-      // window.confirmationResult.confirm(code).then((result) => {
-      //   const user = result.user;
-      //   console.log(JSON.stringify(user))
-      //   alert("User Verified")
-      // }).catch((error) => {
-      //   console.log("Wrong Otp")
-      // });
+      window.confirmationResult.confirm(code).then((result) => {
+        const user = result.user;
+        console.log(JSON.stringify(user))
+        alert("User Verified")
+      }).catch((error) => {
+        console.log("Wrong Otp")
+      });
     } else {
       setErrorMessage(validationMessage);
     }
@@ -104,16 +104,16 @@ function SignIn(props) {
       setOtpSent(true);
       setErrorMessage('');
       const phoneNumber = "+91" + phone;
-      // configureCaptcha();
-      // const appVerifier = window.recaptchaVerifier;
-      // console.log(phoneNumber)
-      // firebase.auth().signInWithPhoneNumber(phoneNumber, appVerifier)
-      //   .then((confirmationResult) => {
-      //     window.confirmationResult = confirmationResult;
-      //     console.log('OTP has been sent')
-      // }).catch((error) => {
-      //   console.log("Not sent" + error)
-      // })
+      configureCaptcha();
+      const appVerifier = window.recaptchaVerifier;
+      console.log(phoneNumber)
+      firebase.auth().signInWithPhoneNumber(phoneNumber, appVerifier)
+        .then((confirmationResult) => {
+          window.confirmationResult = confirmationResult;
+          console.log('OTP has been sent')
+      }).catch((error) => {
+        console.log("Not sent" + error)
+      })
     } else {
       setErrorMessage(validationMessage);
     }
@@ -131,18 +131,18 @@ function SignIn(props) {
     if (isValid) {
       setEmailSent(true);
       setFinalEmail(email);
-      // const res = await firebase.auth().createUserWithEmailAndPassword(email, password)
-      // await res.user.sendEmailVerification()
-      // .then(() => {
-      //   setEmailSent(true);
-      //   console.log("Email sent")
-      // }).catch((error) => {
-      //   console.log(error)
-      // })
-      // const user = firebase.auth().currentUser;
-      // if(user !== null){
-      //   setFullyVerified(true);
-      // }
+      const res = await firebase.auth().createUserWithEmailAndPassword(email, password)
+      await res.user.sendEmailVerification()
+      .then(() => {
+        setEmailSent(true);
+        console.log("Email sent")
+      }).catch((error) => {
+        console.log(error)
+      })
+      const user = firebase.auth().currentUser;
+      if(user !== null){
+        setFullyVerified(true);
+      }
       setFullyVerified(true);
     } else {
       setErrorMessage(validationMessage);

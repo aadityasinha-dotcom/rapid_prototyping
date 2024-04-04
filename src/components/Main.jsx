@@ -235,6 +235,7 @@ const Content = styled.div`
 
 function Main(props) {
 	const [showModal, setShowModal] = useState("close");
+  const [posts, setPosts] = useState([]);
   const dispatch = useDispatch(); 
 
 	useEffect(() => {
@@ -245,6 +246,12 @@ function Main(props) {
 
     const userEmail = localStorage.getItem("email");
     console.log(userEmail);
+
+    const fetchPosts = async () => {
+      const response = await fetch('https://linkedinapi-1.onrender.com/users/login/getAllPost');
+      const data = await response.json();
+      setPosts(data);
+    };
 
     const fetchData = async () => {
       const response = await fetch('https://linkedinapi-1.onrender.com/users/login/handelGetUsers', {
@@ -270,6 +277,7 @@ function Main(props) {
     }
 		// window.addEventListener('scroll', handleScroll);
 		props.getArticles();
+    fetchPosts();
 	}, [props.user.username]);
 
 	const clickHandler = (event) => {
@@ -320,6 +328,23 @@ function Main(props) {
 
 		props.likeHandler(payload);
 	}
+
+  async function handleLike(event, id, username) {
+    const data ={
+      id: id,
+      userName: username,
+    };
+
+    const response = await fetch('https://linkedinapi-1.onrender.com/users/login/like', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data),
+    });
+    const jsonData = await response.json();
+    console.log(jsonData); // data is available here
+
+    console.log(id, username);
+  }
 
 	const handleMouseOver = () => {
 		console.log('Mouse hovered over!');
@@ -390,7 +415,43 @@ function Main(props) {
           </IconButton>
         </CardActions>
       </Card>
-			<Content>
+      <Card sx={{ maxWidth: 545 }}>
+        {posts.map((post, key) => (
+          <div>
+            <CardHeader
+              avatar={
+                <Avatar sx={{ bgcolor: red[500] }} aria-label="recipe">
+                  {post.userName[1]}
+                </Avatar>
+              }
+              action={
+                <IconButton aria-label="settings">
+                  <MoreVertIcon />
+                </IconButton>
+              }
+              title={post.userName}
+              subheader={post.DateAndTime}
+            />
+            <CardContent>
+              <Typography variant="body2" color="text.secondary">
+                {post.text}
+              </Typography>
+            </CardContent>
+            <CardActions disableSpacing>
+              <IconButton aria-label="like" onClick={(event) => handleLike(event, post.id, post.userName)}>
+                <ThumbUpIcon />
+              </IconButton>
+              <IconButton aria-label="comment">
+                <CommentIcon />
+              </IconButton>
+              <IconButton aria-label="share">
+                <ShareIcon />
+              </IconButton>
+            </CardActions>
+          </div>
+        ))}
+      </Card>
+      <Content>
 				{props.loading && <img src="/images/spin-loader.gif" alt="" />}
 				{props.articles.length > 0 &&
 					props.articles.map((article, key) => (
