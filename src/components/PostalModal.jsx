@@ -139,6 +139,8 @@ const PostButton = styled.button`
 	letter-spacing: 1.1px;
 	border: none;
 	outline: none;
+  cursor: pointer;
+
 	&:hover {
 		background: ${(props) => (props.disabled ? "#b8b8b8" : "#004182")};
 	}
@@ -196,21 +198,37 @@ function PostalModal(props) {
 		setAssetArea(area);
 	}
 
-	function postArticle(event) {
+	async function postArticle(event) {
 		event.preventDefault();
 		if (event.target !== event.currentTarget) {
 			return;
 		}
 
-		const payload = {
-			image: imageFile,
-			video: videoFile,
-			description: editorText,
-			user: props.user,
-			timestamp: Firebase.firestore.Timestamp.now(),
-		};
+    const data = {
+      userName: props.user.username,
+      text: editorText,
+    }
 
-		props.postArticle(payload);
+    try {
+      const response = await fetch('https://linkedinapi-1.onrender.com/users/login/createPost', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data),
+      });
+      const textData = await response.text();
+      console.log(textData); // Handle successful response
+    } catch (error) {
+      console.error('Error saving user data:', error); // Handle errors
+    }
+		// const payload = {
+		// 	image: imageFile,
+		// 	video: videoFile,
+		// 	description: editorText,
+		// 	user: props.user,
+		// 	timestamp: Firebase.firestore.Timestamp.now(),
+		// };
+		//
+		// props.postArticle(payload);
 		reset(event);
 	}
 
