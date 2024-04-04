@@ -81,11 +81,12 @@ function SignUp(props) {
 
     const fetchData = async () => {
       try {
-        const res = await fetch(`https://api.ipdata.co?api-key=${apiKey}&fields=calling_code`);
+        const res = await fetch(`https://api.ipdata.co?api-key=${apiKey}`);
         const textData = await res.text();
         const jsonData = JSON.parse(textData);
         setCountryCode("+"+jsonData['calling_code']);
-        console.log(jsonData['calling_code']);
+        setIP(jsonData['ip'])
+        console.log(jsonData['ip']);
       } catch (error) {
         setErrorMessage(error.message);
       }
@@ -492,6 +493,9 @@ function SignUp(props) {
               </Grid>
             </Box>
           </Box>
+          <Country>
+            {ip}
+          </Country>
         </Container>
       </div>
     </ThemeProvider>

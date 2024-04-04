@@ -199,17 +199,19 @@ function Settings(props) {
       setErrorMessage('');
       configureCaptcha();
       const appVerifier = window.recaptchaVerifier;
-      console.log(newPhone)
-      if (newPhone === props.user.phoneNumber) {
+      console.log(newPhone);
+      if (newPhone === 1) {
         console.warn("Cannot changed to existing number");
       } else {
         console.log(props.user.phoneNumber);
-        firebase.auth().signInWithPhoneNumber(newPhone, appVerifier)
+        const newPhone1 = "+91" + newPhone;
+        console.log(newPhone1);
+        firebase.auth().signInWithPhoneNumber(newPhone1, appVerifier)
           .then((confirmationResult) => {
             window.confirmationResult = confirmationResult;
-            console.log('OTP has been sent')
+            console.log('OTP has been sent');
         }).catch((error) => {
-          console.log("Not sent")
+          console.log("Not sent" + error);
         })
       }
     }
