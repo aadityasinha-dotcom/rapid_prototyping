@@ -4,6 +4,7 @@ import ReactPlayer from "react-player";
 import styled from "styled-components";
 import { getArticlesAPI, updateArticleAPI } from "../action";
 import PostalModal from "./PostalModal";
+import CommentModal from "./CommentModal";
 import Cookies from 'js-cookie';
 import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
@@ -235,6 +236,8 @@ const Content = styled.div`
 
 function Main(props) {
 	const [showModal, setShowModal] = useState("close");
+  const [showComment, setShowComment] = useState("close");
+  const [commentData, setCommentData] = useState([]);
   const [posts, setPosts] = useState([]);
   const dispatch = useDispatch(); 
 
@@ -301,6 +304,30 @@ function Main(props) {
 		}
 	};
 
+  function commentHandler(event, id, username) {
+    event.preventDefault();
+    // if (event.target !== event.currentTarget) {
+    //   return;
+    // }
+    switch (showComment) {
+      case "open":
+        console.log("Post Close");
+        setCommentData([]);
+        setShowComment("close");
+        break;
+      case "close":
+        console.log("Post Open");
+        setCommentData([id, username]);
+        setShowComment("open");
+        break;
+      default:
+        console.log("Post Close");
+        setCommentData([]);
+        setShowComment("close");
+        break;
+    }
+  }
+
 	function likeHandler(event, postIndex, id) {
 		event.preventDefault();
 		let currentLikes = props.articles[postIndex].likes.count;
@@ -350,7 +377,7 @@ function Main(props) {
 		console.log('Mouse hovered over!');
 	};	
 
-	console.log(props.user);
+	// console.log(props.user);
 	// console.log(localStorage.getItem("jwtToken"));
 
 	return (
@@ -441,7 +468,7 @@ function Main(props) {
               <IconButton aria-label="like" onClick={(event) => handleLike(event, post.id, post.userName)}>
                 <ThumbUpIcon />
               </IconButton>
-              <IconButton aria-label="comment">
+              <IconButton aria-label="comment" onClick={(event) => commentHandler(event, post.id, post.userName)}>
                 <CommentIcon />
               </IconButton>
               <IconButton aria-label="share">
@@ -513,6 +540,7 @@ function Main(props) {
 					))}
 			</Content>
 			<PostalModal showModal={showModal} clickHandler={clickHandler} />
+      <CommentModal showModal={showComment} commentData={commentData} clickHandler={commentHandler} />
 		</Container>
 	);
 }
