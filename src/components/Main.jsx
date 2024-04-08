@@ -448,7 +448,7 @@ function Main(props) {
             <CardHeader
               avatar={
                 <Avatar sx={{ bgcolor: red[500] }} aria-label="recipe">
-                  {post.userName[1]}
+                  {post.userName[0].toUpperCase()}
                 </Avatar>
               }
               action={
