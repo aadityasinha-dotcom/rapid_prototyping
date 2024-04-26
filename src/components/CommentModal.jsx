@@ -1,9 +1,14 @@
-import { useState } from "react";
+import React, { useState, useEffect } from "react";
 import ReactPlayer from "react-player";
 import { connect } from "react-redux";
 import Firebase from "firebase";
 import styled from "styled-components";
 import { postArticleAPI } from "../action";
+import { red } from '@mui/material/colors';
+import Avatar from '@mui/material/Avatar';
+import CardHeader from '@mui/material/CardHeader';
+import CardContent from '@mui/material/CardContent';
+import Typography from '@mui/material/Typography';
 
 const Container = styled.div`
 	position: fixed;
@@ -113,6 +118,23 @@ const AssetButton = styled.button`
 	}
 `;
 
+const CommonBox = styled.div`
+	text-align: center;
+	overflow: hidden;
+	margin-bottom: 8px;
+	background-color: #fff;
+	border-radius: 5px;
+	position: relative;
+	border: none;
+	box-shadow: 0 0 0 1px rgb(0 0 0 / 15%), 0 0 0 rgb(0 0 0 / 20%);
+`;
+
+const Article = styled(CommonBox)`
+	padding: 0;
+	margin: 0 0 8px;
+	overflow: visible;
+`;
+
 const ShareComment = styled.div`
 	padding-left: 8px;
 	margin-right: auto;
@@ -173,7 +195,34 @@ function CommentModal(props) {
 	const [imageFile, setImageFile] = useState("");
 	const [videoFile, setVideoFile] = useState("");
 	const [assetArea, setAssetArea] = useState("");
+  const [comments, setComments] = useState(null);
 
+  useEffect(() => {
+    const fetchComments = async () => {
+      const response = await fetch('https://linkedinapi-1.onrender.com/users/login/getComments');
+      const data = await response.json();
+      setComments(data);
+    };
+
+    fetchComments();
+  }, []);
+
+  async function postComment(event, editorText) {
+    const data1 = {
+      email: editorText,
+    };
+
+    try {
+      const response = await fetch('https://linkedinapi-1.onrender.com/users/login/comments', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data1),
+      });
+    } catch (error) {
+      console.error('Error saving user data:', error); // Handle errors
+    }
+
+  };
 
 	const reset = (event) => {
 		setEditorText("");
@@ -239,16 +288,38 @@ function CommentModal(props) {
 				<Container>
 					<Content>
 						<Header>
-							<h2>Create a post</h2>
+							<h2>Comments</h2>
 							<button onClick={(event) => reset(event)}>
 								<img src="/images/close-icon.svg" alt="" />
 							</button>
 						</Header>
 						<SharedContent>
-							<UserInfo>
-								{props.user.photoURL ? <img src={props.user.photoURL} alt="" /> : <img src="/images/user.svg" alt="" />}
-								<span>{props.user.displayName ? props.user.displayName : "Name"}</span>
-							</UserInfo>
+							{/* <UserInfo> */}
+							{/* 	{props.user.photoURL ? <img src={props.user.photoURL} alt="" /> : <img src="/images/user.svg" alt="" />} */}
+							{/* 	<span>{props.user.displayName ? props.user.displayName : "Name"}</span> */}
+							{/* </UserInfo> */}
+              {comments.length > 0 &&
+                comments.map((comment, key) => (
+                  <div>
+                    <CardHeader
+                      avatar={
+                        <Avatar sx={{ bgcolor: red[500] }} aria-label="recipe">
+                          {comment.userName[0].toUpperCase()}
+                        </Avatar>
+                      }
+                    />
+                    <CardContent>
+                      <Typography variant="body2" color="text.secondary">
+                        {comment.userName}
+                      </Typography>
+                    </CardContent>
+                    {/* <CardContent> */}
+                    {/*   <Typography variant="body2" color="text.secondary"> */}
+                    {/*     {post.text} */}
+                    {/*   </Typography> */}
+                    {/* </CardContent> */}
+                  </div>
+              ))}
 							<Editor>
 								<textarea value={editorText} onChange={(event) => setEditorText(event.target.value)} placeholder="What do you want to talk about?" autoFocus={true} />
 
@@ -292,8 +363,8 @@ function CommentModal(props) {
 									<span>Anyone</span>
 								</AssetButton>
 							</ShareComment>
-							<PostButton disabled={!editorText ? true : false} onClick={(event) => postArticle(event)}>
-								Post
+							<PostButton disabled={!editorText ? true : false} onClick={(event) => postComment(event)}>
+								Comment
 							</PostButton>
 						</ShareCreation>
 					</Content>
