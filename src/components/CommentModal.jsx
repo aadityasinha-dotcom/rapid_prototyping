@@ -199,7 +199,7 @@ function CommentModal(props) {
 
   useEffect(() => {
     const fetchComments = async () => {
-      const response = await fetch('https://linkedinapi-1.onrender.com/users/login/getComments');
+      const response = await fetch('https://linkedin-backend-v0zz.onrender.com/users/login/getComments');
       const data = await response.json();
       setComments(data);
     };
@@ -213,7 +213,7 @@ function CommentModal(props) {
     };
 
     try {
-      const response = await fetch('https://linkedinapi-1.onrender.com/users/login/comments', {
+      const response = await fetch('https://linkedin-backend-v0zz.onrender.com/users/login/comments', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data1),

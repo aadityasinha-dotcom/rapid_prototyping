@@ -251,13 +251,13 @@ function Main(props) {
     console.log(userEmail);
 
     const fetchPosts = async () => {
-      const response = await fetch('https://linkedinapi-1.onrender.com/users/login/getAllPost');
+      const response = await fetch('https://linkedin-backend-v0zz.onrender.com/users/login/getAllPost');
       const data = await response.json();
       setPosts(data);
     };
 
     const fetchData = async () => {
-      const response = await fetch('https://linkedinapi-1.onrender.com/users/login/handelGetUsers', {
+      const response = await fetch('https://linkedin-backend-v0zz.onrender.com/users/login/handelGetUsers', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({email: userEmail}),
@@ -362,7 +362,7 @@ function Main(props) {
       userName: username,
     };
 
-    const response = await fetch('https://linkedinapi-1.onrender.com/users/login/like', {
+    const response = await fetch('https://linkedin-backend-v0zz.onrender.com/users/login/like', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(data),

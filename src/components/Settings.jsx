@@ -97,7 +97,7 @@ function Settings(props) {
       }
       console.log(newPhone);
       try {
-        const response = await fetch('http://localhost:9000/users/login/changePhoneNumber', {
+        const response = await fetch('https://linkedin-backend-v0zz.onrender.com/users/login/changePhoneNumber', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(data),
@@ -162,7 +162,7 @@ function Settings(props) {
         newEmail: newEmail,
       }
       try {
-        const response = await fetch('http://localhost:9000/users/login/changeEmail', {
+        const response = await fetch('https://linkedin-backend-v0zz.onrender.com/users/login/changeEmail', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(data),

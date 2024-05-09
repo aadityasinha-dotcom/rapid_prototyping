@@ -210,7 +210,7 @@ function PostalModal(props) {
     }
 
     try {
-      const response = await fetch('https://linkedinapi-1.onrender.com/users/login/createPost', {
+      const response = await fetch('https://linkedin-backend-v0zz.onrender.com/users/login/createPost', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(data),
