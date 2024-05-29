@@ -270,15 +270,6 @@ function CommentModal(props) {
     } catch (error) {
       console.error('Error saving user data:', error); // Handle errors
     }
-		// const payload = {
-		// 	image: imageFile,
-		// 	video: videoFile,
-		// 	description: editorText,
-		// 	user: props.user,
-		// 	timestamp: Firebase.firestore.Timestamp.now(),
-		// };
-		//
-		// props.postArticle(payload);
 		reset(event);
 	}
 
@@ -294,10 +285,6 @@ function CommentModal(props) {
 							</button>
 						</Header>
 						<SharedContent>
-							{/* <UserInfo> */}
-							{/* 	{props.user.photoURL ? <img src={props.user.photoURL} alt="" /> : <img src="/images/user.svg" alt="" />} */}
-							{/* 	<span>{props.user.displayName ? props.user.displayName : "Name"}</span> */}
-							{/* </UserInfo> */}
               {comments.length > 0 &&
                 comments.map((comment, key) => (
                   <div>
@@ -313,11 +300,6 @@ function CommentModal(props) {
                         {comment.userName}
                       </Typography>
                     </CardContent>
-                    {/* <CardContent> */}
-                    {/*   <Typography variant="body2" color="text.secondary"> */}
-                    {/*     {post.text} */}
-                    {/*   </Typography> */}
-                    {/* </CardContent> */}
                   </div>
               ))}
 							<Editor>
